@@ -1,0 +1,22 @@
+dataset:
+  name: Apollo
+  dataset_root: /media/qzj/Document/datasets/Apollo
+  sensor_dir: "configs/sensors/velodyne64" # velodyne, ouster, rslidar
+
+  min_range: 2 # 0.5 minimum range of lidar
+  max_range: 80 # 80 maximum range of lidar
+  min_cluster_size: 20 # 20 minimum cluster size of lidar
+
+front_end: "fpfh" # gem, fpfh
+cluster_mtd: "travel" # euc, dcvc, travel
+back_end: "3dmac" # pagor, ransac, 3dmac
+mac_solver: "pmc" # pmc, clipper, pyclipper
+tf_solver: "gmm_tls" # teaser, gnc, quatro, svd, gmm_tls
+verify_mtd: "voxel" # voxel, pc
+
+association:
+  method: "wasserstein" # all, iou, wasserstein
+  num_clusters: 50 # maximum number of clusters
+  num_planes: 50 # maximum number of planes
+  num_lines: 50 # maximum number of lines
+  topK: 20 # topk association

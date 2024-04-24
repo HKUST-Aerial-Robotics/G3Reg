@@ -1,2 +1,12 @@
-.idea
-build
+Log
+*build*
+__pycache__
+log
+results
+.idea/
+qzj
+special_logs
+datait
+bin
+experiments
+.vscode

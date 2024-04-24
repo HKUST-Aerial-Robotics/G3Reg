@@ -1,0 +1,6 @@
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(glog REQUIRED libglog)
+include_directories(${glog_INCLUDE_DIRS})
+list(APPEND ALL_TARGET_LIBRARIES ${glog_LIBRARIES})
+message(STATUS "Glog include dirs: ${glog_INCLUDE_DIRS}")
+message(STATUS "Glog libraries: ${glog_LIBRARIES}")

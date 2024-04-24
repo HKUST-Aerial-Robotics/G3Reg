@@ -1,0 +1,16 @@
+/**
+** Created by Zhijian QIAO.
+** UAV Group, Hong Kong University of Science and Technology
+** email: zqiaoac@connect.ust.hk
+**/
+#ifndef LIDAR_LOCALIZATION_GLOBAL_DEFINATION_H_IN_
+#define LIDAR_LOCALIZATION_GLOBAL_DEFINATION_H_IN_
+
+#include <string>
+//
+
+namespace g3reg {
+    const std::string WORK_SPACE_PATH = "@WORK_SPACE_PATH@";
+    const std::string MATCH_YAML_PATH = WORK_SPACE_PATH + "/config/template.yaml";
+}
+#endif
