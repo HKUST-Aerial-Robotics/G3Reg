@@ -51,11 +51,16 @@
 - [Benchmarks](docs/benchmarks.md)
 
 ## Qualitative results on datasets
-
-<div align="center">
-    <img src="docs/visualization.png" alt="visualization">
-</div>
-
+### KITTI-08
+https://github.com/HKUST-Aerial-Robotics/G3Reg/assets/21232185/8f4091b5-5305-4236-afb6-00ea5799ecd7
+### Apollo-Highway
+https://github.com/HKUST-Aerial-Robotics/G3Reg/assets/21232185/f1d4c9ad-04e9-4cf4-890a-12714f74eb59
+### Apollo-Sunnyvale
+https://github.com/HKUST-Aerial-Robotics/G3Reg/assets/21232185/60c7bf50-cd1c-447d-964d-1902e4db0489
+### Livox-HIT-1
+https://github.com/HKUST-Aerial-Robotics/G3Reg/assets/21232185/ee1d9dd1-d460-4970-b060-ada25bc8e004
+### Livox-HIT-3
+https://github.com/HKUST-Aerial-Robotics/G3Reg/assets/21232185/ef453f89-c92b-4d26-b232-3db2e3bac3f3
 ## Application to Multi-session Map Merging
 <div align="center">
     <img src="docs/map_merging.png" alt="map_merging">
