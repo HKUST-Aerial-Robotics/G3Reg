@@ -4,6 +4,9 @@
 
 <div align="center">
 <a href="https://arxiv.org/abs/2308.11573"><img src="https://img.shields.io/badge/ArXiv-2308.11573-004088.svg"/></a>
+<a href="https://youtu.be/4OeZ9bVsxcY?si=180BzZ-lxak1iq69">
+<img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/>
+</a>
 <a ><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-red" /></a>
 <a href="https://github.com/HKUST-Aerial-Robotics/G3Reg/stargazers">
 <img alt="stars" src="https://img.shields.io/github/stars/HKUST-Aerial-Robotics/G3Reg" />
