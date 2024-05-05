@@ -76,12 +76,16 @@ We would like to show our greatest respect to authors of the following repos for
 ## Citation
 If you find G3Reg is useful in your research or applications, please consider giving us a star 🌟 and citing it by the following BibTeX entry.
 ```bibtex
-@article{qiao2023g3reg,
-  title={G3Reg: Pyramid Graph-based Global Registration using Gaussian Ellipsoid Model},
+@ARTICLE{10518010,
   author={Qiao, Zhijian and Yu, Zehuan and Jiang, Binqian and Yin, Huan and Shen, Shaojie},
-  journal={arXiv preprint arXiv:2308.11573},
-  year={2023}
-}
+  journal={IEEE Transactions on Automation Science and Engineering}, 
+  title={G3Reg: Pyramid Graph-Based Global Registration Using Gaussian Ellipsoid Model}, 
+  year={2024},
+  volume={},
+  number={},
+  pages={1-17},
+  keywords={Point cloud compression;Three-dimensional displays;Laser radar;Ellipsoids;Robustness;Upper bound;Uncertainty;Global registration;point cloud;LiDAR;graph theory;robust estimation},
+  doi={10.1109/TASE.2024.3394519}}
 ```
 ```bibtex
 @inproceedings{qiao2023pyramid,
