@@ -3,6 +3,7 @@
 ## <div align = "center">Pyramid Graph-based Global Registration using Gaussian Ellipsoid Model</div>
 
 <div align="center">
+<a href="https://ieeexplore.ieee.org/document/10518010"><img src="https://img.shields.io/badge/Paper-IEEE TASE-004088.svg"/></a>
 <a href="https://arxiv.org/abs/2308.11573"><img src="https://img.shields.io/badge/ArXiv-2308.11573-004088.svg"/></a>
 <a href="https://youtu.be/4OeZ9bVsxcY?si=180BzZ-lxak1iq69">
 <img alt="Youtube" src="https://img.shields.io/badge/Video-Youtube-red"/>
@@ -76,7 +77,7 @@ We would like to show our greatest respect to authors of the following repos for
 ## Citation
 If you find G3Reg is useful in your research or applications, please consider giving us a star 🌟 and citing it by the following BibTeX entry.
 ```bibtex
-@ARTICLE{10518010,
+@ARTICLE{qiao2024g3reg,
   author={Qiao, Zhijian and Yu, Zehuan and Jiang, Binqian and Yin, Huan and Shen, Shaojie},
   journal={IEEE Transactions on Automation Science and Engineering}, 
   title={G3Reg: Pyramid Graph-Based Global Registration Using Gaussian Ellipsoid Model}, 
