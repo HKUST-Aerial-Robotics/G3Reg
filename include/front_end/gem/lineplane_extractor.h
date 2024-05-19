@@ -48,9 +48,9 @@ namespace g3reg {
 
         void ExtractPole(std::vector<ClusterFeature::Ptr> &cluster_features,
                          std::vector<LineFeature::Ptr> &line_features);
-	
-		void ExtractPlanes(std::vector<ClusterFeature::Ptr> &cluster_features,
-						   std::vector<SurfaceFeature::Ptr> &plane_features);
+
+        void ExtractPlanes(std::vector<ClusterFeature::Ptr> &cluster_features,
+                           std::vector<SurfaceFeature::Ptr> &plane_features);
 
         void MergePlanes(std::vector<SurfaceFeature::Ptr> &surface_features);
 
@@ -58,14 +58,16 @@ namespace g3reg {
 
         void reset();
 
-        const VoxelMap& getVoxels() const{
+        const VoxelMap &getVoxels() const {
             return voxel_map;
         }
 
     private:
         VoxelMap voxel_map;
     };
-    
+
+    void TransformToEllipsoid(const FeatureSet &featureSet, std::vector<std::vector<QuadricFeature::Ptr>> &ellipsoids);
+
 } // namespace g3reg
 
 #endif //SRC_LINEPLANE_EXTRACTOR_H

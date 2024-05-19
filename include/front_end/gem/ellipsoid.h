@@ -6,6 +6,7 @@
 
 #ifndef SRC_ELLIPSOID_H
 #define SRC_ELLIPSOID_H
+
 #include "front_end/graph_vertex.h"
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -20,7 +21,7 @@ namespace g3reg {
 
     public:
 //        typedef boost::shared_ptr<pcl::PointCloud<PointT>> PointCloudPtr;
-        EllipsoidMatcher(){
+        EllipsoidMatcher() {
             src_ellipsoids_.clear();
             tgt_ellipsoids_.clear();
             src_ellipsoids_vec_.clear();
@@ -28,7 +29,7 @@ namespace g3reg {
         }
 
         EllipsoidMatcher(pcl::PointCloud<pcl::PointXYZ>::Ptr srcPc,
-                         pcl::PointCloud<pcl::PointXYZ>::Ptr tgtPc){
+                         pcl::PointCloud<pcl::PointXYZ>::Ptr tgtPc) {
             srcPc_ = srcPc;
             tgtPc_ = tgtPc;
             EllipsoidMatcher();
@@ -44,39 +45,33 @@ namespace g3reg {
                                             std::vector<clique_solver::GraphVertex::Ptr> &src_nodes,
                                             std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes);
 
-        clique_solver::Association getAssociation(){
+        clique_solver::Association getAssociation() {
             return A_;
         }
 
-        std::vector<g3reg::QuadricFeature::Ptr> getSrcEllipsoids(){
+        std::vector<g3reg::QuadricFeature::Ptr> getSrcEllipsoids() {
             return src_ellipsoids_;
         }
 
-        std::vector<g3reg::QuadricFeature::Ptr> getTgtEllipsoids(){
+        std::vector<g3reg::QuadricFeature::Ptr> getTgtEllipsoids() {
             return tgt_ellipsoids_;
         }
 
-        const VoxelMap& getSrcVoxels() const{
+        const VoxelMap &getSrcVoxels() const {
             return plc_src_.getVoxels();
         }
 
-        const VoxelMap& getTgtVoxels() const{
+        const VoxelMap &getTgtVoxels() const {
             return plc_tgt_.getVoxels();
         }
 
-        const pcl::PointCloud<pcl::PointXYZ>::Ptr& getSrcPc() const{
+        const pcl::PointCloud<pcl::PointXYZ>::Ptr &getSrcPc() const {
             return srcPc_;
         }
 
-        const pcl::PointCloud<pcl::PointXYZ>::Ptr& getTgtPc() const{
+        const pcl::PointCloud<pcl::PointXYZ>::Ptr &getTgtPc() const {
             return tgtPc_;
         }
-
-    private:
-
-        void TopKEllipse(std::vector<g3reg::QuadricFeature::Ptr> &ellipsoids, int k);
-
-        void TransformToEllipsoid(const FeatureSet& featureSet, std::vector<std::vector<QuadricFeature::Ptr>>& ellipsoids);
 
     private:
         pcl::PointCloud<pcl::PointXYZ>::Ptr srcPc_, tgtPc_;
@@ -87,6 +82,7 @@ namespace g3reg {
         clique_solver::Association A_;
     };
 
-    std::vector<g3reg::QuadricFeature::Ptr> transformQuadric(const std::vector<g3reg::QuadricFeature::Ptr>& quadric_vec, const Eigen::Matrix4d& T);
+    std::vector<g3reg::QuadricFeature::Ptr>
+    transformQuadric(const std::vector<g3reg::QuadricFeature::Ptr> &quadric_vec, const Eigen::Matrix4d &T);
 }
 #endif //SRC_ELLIPSOID_H

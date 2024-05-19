@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        )
+)
 
 add_subdirectory(Thirdparty/clique_solver)
 add_subdirectory(Thirdparty/robot_utils)
@@ -39,7 +39,7 @@ target_link_libraries(${PROJECT_NAME}
         CLIQUE_SOLVER::mac_solver
         ROBOT_UTILS::robot_utils
         FPFH_MATCHER::fpfh_matcher
-        )
+)
 message(STATUS "ALL_TARGET_LIBRARIES: ${ALL_TARGET_LIBRARIES}")
 add_library(G3REG::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -57,3 +57,7 @@ target_link_libraries(matching_bm ${PROJECT_NAME})
 add_executable(demo_reg examples/demo_reg.cpp ${BACKWARD_ENABLE})
 add_backward(demo_reg)
 target_link_libraries(demo_reg ${PROJECT_NAME})
+
+add_executable(demo_seg examples/demo_seg.cpp ${BACKWARD_ENABLE})
+add_backward(demo_seg)
+target_link_libraries(demo_seg ${PROJECT_NAME})
