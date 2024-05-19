@@ -42,7 +42,7 @@
 
 **Note to Practitioners**:
 + **Application Scope**: The method outlined in this paper focuses on global registration of outdoor LiDAR point clouds. However, the fundamental principles of G3Reg, including segment-based matching and PAGOR, are applicable to any point-based registration tasks, including indoor environments.
-+ **Segmentation Check**: If the registration does not perform as expected on your point cloud, it is advisable to review the segmentation results closely.
++ **Segmentation Check**: If the registration does not perform as expected on your point cloud, it is advisable to review the segmentation results closely, referring to [Segmentation Demo](docs/demo.md).
 + **Alternative Matching Approaches**: For practitioners preferring not to use GEM-based matching, point-based matching is a viable alternative. For implementation details, please refer to the configuration file at [fpfh_pagor](configs/kitti_lc_bm/fpfh_pagor.yaml).
 + **Limitations**: Segment-based matching may be less effective in environments with sparse geometric information, such as areas with dense vegetation. In such scenarios, enhancing segment descriptions through hand-crafted or deep learning-based descriptors is recommended to improve matching accuracy.
 
