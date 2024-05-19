@@ -2,6 +2,10 @@
 ```angular2html
 sudo apt install pcl-tools
 ```
+### Debug Segmentation
+```angular2html
+./bin/demo_seg configs/apollo_lc_bm/gem_pagor.yaml examples/data/velodyne/source.pcd
+```
 ### Try Livox Point Cloud
 ```angular2html
 # Try Livox point cloud
