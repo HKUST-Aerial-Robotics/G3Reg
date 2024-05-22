@@ -12,14 +12,16 @@
 #include <pcl/point_cloud.h>
 
 namespace g3reg {
-    FRGresult GlobalRegistration(pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
-                                 pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud,
+    FRGresult GlobalRegistration(const pcl::PointCloud<pcl::PointXYZ>::Ptr &src_cloud,
+                                 const pcl::PointCloud<pcl::PointXYZ>::Ptr &tgt_cloud,
                                  std::tuple<int, int, int> pair_info = std::make_tuple(0, 0, 0));
 
-    FRGresult SolveFromCorresp(Eigen::MatrixX3d src_corresp,
-                               Eigen::MatrixX3d tgt_corresp,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud);
+    FRGresult SolveFromCorresp(const Eigen::MatrixX3d &src_corresp,
+                               const Eigen::MatrixX3d &tgt_corresp,
+                               const Eigen::MatrixX3d &src_cloud,
+                               const Eigen::MatrixX3d &tgt_cloud,
+                               const std::vector<double> &noise_bound_vec = {0.2},
+                               std::string tf_solver = "gnc");
 }
 
 

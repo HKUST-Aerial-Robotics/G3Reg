@@ -17,8 +17,8 @@ using namespace clique_solver;
 
 namespace g3reg { //fast and robust global registration
 
-    FRGresult GlobalRegistration(pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
-                                 pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud,
+    FRGresult GlobalRegistration(const pcl::PointCloud<pcl::PointXYZ>::Ptr &src_cloud,
+                                 const pcl::PointCloud<pcl::PointXYZ>::Ptr &tgt_cloud,
                                  std::tuple<int, int, int> pair_info) {
 
         FRGresult result;
@@ -52,16 +52,45 @@ namespace g3reg { //fast and robust global registration
         return result;
     }
 
-    FRGresult SolveFromCorresp(Eigen::MatrixX3d src_corresp,
-                               Eigen::MatrixX3d tgt_corresp,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
-                               pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud) {
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr eigenToPCL(const Eigen::MatrixX3d &eigen_matrix) {
+        // 创建一个新的点云
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+        // 设置点云的大小以匹配 Eigen 矩阵的行数
+        cloud->points.resize(eigen_matrix.rows());
+
+        // 转换所有点
+        for (int i = 0; i < eigen_matrix.rows(); ++i) {
+            pcl::PointXYZ &pt = cloud->points[i];
+            pt.x = eigen_matrix(i, 0);
+            pt.y = eigen_matrix(i, 1);
+            pt.z = eigen_matrix(i, 2);
+        }
+
+        // 调整点云中点的数量
+        cloud->width = cloud->points.size();
+        cloud->height = 1;
+        cloud->is_dense = false;
+
+        return cloud;
+    }
+
+    FRGresult SolveFromCorresp(const Eigen::MatrixX3d &src_corresp,
+                               const Eigen::MatrixX3d &tgt_corresp,
+                               const Eigen::MatrixX3d &src_cloud,
+                               const Eigen::MatrixX3d &tgt_cloud,
+                               const std::vector<double> &noise_bound_vec,
+                               std::string tf_solver) {
 
         assert(src_corresp.rows() == tgt_corresp.rows());
 
+        config::tf_solver = tf_solver;
+        config::vertex_info.noise_bound_vec = noise_bound_vec;
+
         FRGresult result;
         std::vector<GraphVertex::Ptr> src_nodes, tgt_nodes;
-        g3reg::EllipsoidMatcher matcher(src_cloud, tgt_cloud);
+        g3reg::EllipsoidMatcher matcher(eigenToPCL(src_cloud), eigenToPCL(tgt_cloud));
         robot_utils::TicToc front_end_timer, timer;
 
         int64_t num_corresp = src_corresp.rows();

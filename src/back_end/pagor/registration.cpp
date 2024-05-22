@@ -37,21 +37,22 @@ namespace pagor {
         solution_.candidates.resize(num_graphs_);
         for (int level = 0; level < num_graphs_; ++level) {
             const auto &max_clique = max_cliques_[level];
-            bool same_clique = level==0 ? false : robot_utils::are_vectors_equal(max_cliques_[level-1], max_cliques_[level]);
+            bool same_clique =
+                    level == 0 ? false : robot_utils::are_vectors_equal(max_cliques_[level - 1], max_cliques_[level]);
             if (same_clique) {
-                solution_.inliers.row(level) = solution_.inliers.row(level-1);
-                solution_.candidates[level] = solution_.candidates[level-1];
+                solution_.inliers.row(level) = solution_.inliers.row(level - 1);
+                solution_.candidates[level] = solution_.candidates[level - 1];
                 continue;
             }
-            if (config::tf_solver == "gmm_tls"){
+            if (config::tf_solver == "gmm_tls") {
                 solveTransformSVD(src, dst, max_clique, level);
                 solveTransformGMM(src_features_, dst_features_, max_clique, level, solution_.candidates[level]);
-            } else if (config::tf_solver == "gnc"){
+            } else if (config::tf_solver == "gnc") {
                 solveTransformSVD(src, dst, max_clique, level);
                 solveTransformGncTls(src, dst, max_clique, level, solution_.candidates[level]);
-            } else if (config::tf_solver == "svd"){
+            } else if (config::tf_solver == "svd") {
                 solveTransformSVD(src, dst, max_clique, level);
-            } else if (config::tf_solver == "teaser" || config::tf_solver == "quatro"){
+            } else if (config::tf_solver == "teaser" || config::tf_solver == "quatro") {
                 solveTransformTeaser(src, dst, max_clique, level);
             } else {
                 throw std::runtime_error("Unknown tf solver type");
@@ -65,9 +66,10 @@ namespace pagor {
         return solution_;
     }
 
-    void PyramidRegistrationSolver::solveTransformGMM(const std::vector<g3reg::QuadricFeature::Ptr>& v1,
-                                                      const std::vector<g3reg::QuadricFeature::Ptr>& v2,
-                                                      const std::vector<int> &max_clique, const int level, Eigen::Matrix4d T_init) {
+    void PyramidRegistrationSolver::solveTransformGMM(const std::vector<g3reg::QuadricFeature::Ptr> &v1,
+                                                      const std::vector<g3reg::QuadricFeature::Ptr> &v2,
+                                                      const std::vector<int> &max_clique, const int level,
+                                                      Eigen::Matrix4d T_init) {
         // when rotation inlier selection is enabled, we need to prune the rotation outliers. otherwise, we just use associations in max clique
         clique_solver::Association rotation_pruned_A = clique_solver::Association::Zero(max_clique.size(), 2);
         for (size_t i = 0; i < max_clique.size(); ++i) {
@@ -89,7 +91,8 @@ namespace pagor {
 
     void PyramidRegistrationSolver::solveTransformGncTls(const std::vector<clique_solver::GraphVertex::Ptr> &src,
                                                          const std::vector<clique_solver::GraphVertex::Ptr> &dst,
-                                                         const std::vector<int> &max_clique, const int level, Eigen::Matrix4d T_init) {
+                                                         const std::vector<int> &max_clique, const int level,
+                                                         Eigen::Matrix4d T_init) {
         // when rotation inlier selection is enabled, we need to prune the rotation outliers. otherwise, we just use associations in max clique
         Eigen::Matrix3Xd rotation_pruned_src;
         Eigen::Matrix3Xd rotation_pruned_dst;
@@ -102,7 +105,7 @@ namespace pagor {
 
         // Abort if max max_clique size <= 1
         if (max_clique.size() >= 3) {
-			solution_.candidates[level] = gtsam::gncSE3(rotation_pruned_src, rotation_pruned_dst);
+            solution_.candidates[level] = gtsam::gncSE3(rotation_pruned_src, rotation_pruned_dst);
             for (size_t i = 0; i < max_clique.size(); ++i) {
                 solution_.inliers(level, max_clique[i]) = true;
             }
@@ -114,8 +117,8 @@ namespace pagor {
     }
 
     void PyramidRegistrationSolver::solveTransformSVD(const std::vector<clique_solver::GraphVertex::Ptr> &src,
-                                                         const std::vector<clique_solver::GraphVertex::Ptr> &dst,
-                                                         const std::vector<int> &max_clique, const int level) {
+                                                      const std::vector<clique_solver::GraphVertex::Ptr> &dst,
+                                                      const std::vector<int> &max_clique, const int level) {
         // when rotation inlier selection is enabled, we need to prune the rotation outliers. otherwise, we just use associations in max clique
         Eigen::Matrix3Xd rotation_pruned_src;
         Eigen::Matrix3Xd rotation_pruned_dst;
@@ -128,7 +131,7 @@ namespace pagor {
 
         // Abort if max max_clique size <= 1
         if (max_clique.size() >= 3) {
-                solution_.candidates[level] = gtsam::svdSE3(rotation_pruned_src, rotation_pruned_dst);
+            solution_.candidates[level] = gtsam::svdSE3(rotation_pruned_src, rotation_pruned_dst);
             for (size_t i = 0; i < max_clique.size(); ++i) {
                 solution_.inliers(level, max_clique[i]) = true;
             }
@@ -139,9 +142,10 @@ namespace pagor {
         }
     }
 
-    std::vector<int> PyramidRegistrationSolver::solveTransformTeaser(const std::vector<clique_solver::GraphVertex::Ptr> &src,
-                                                         const std::vector<clique_solver::GraphVertex::Ptr> &dst,
-                                                         const std::vector<int> &max_clique, const int level) {
+    std::vector<int>
+    PyramidRegistrationSolver::solveTransformTeaser(const std::vector<clique_solver::GraphVertex::Ptr> &src,
+                                                    const std::vector<clique_solver::GraphVertex::Ptr> &dst,
+                                                    const std::vector<int> &max_clique, const int level) {
         reset(params_);
         if (max_clique.size() <= 1) {
             solution_.valid = false;
@@ -210,12 +214,12 @@ namespace pagor {
 
         // Solve for rotation
         TEASER_DEBUG_INFO_MSG("Starting rotation solver.");
-        if (config::tf_solver == "quatro"){
+        if (config::tf_solver == "quatro") {
             quatro::QuatroSolver solver(params_);
             solver.solveForRotation(pruned_src_tims, pruned_dst_tims);
             rotation_inliers_mask_ = solver.getRotationInliersMask();
             solution_.rotation = solver.getRotationSolution();
-        } else{
+        } else {
             solveForRotation(pruned_src_tims, pruned_dst_tims);
         }
         TEASER_DEBUG_INFO_MSG("Rotation estimation complete.");
@@ -275,7 +279,7 @@ namespace pagor {
         final_clique.reserve(max_clique.size());
         for (const auto &inlier: translation_inliers_) {
             int idx = params_.rotation_inlier_selection && rotation_inliers_.size() > 0 ?
-                    rotation_inliers_[inlier] : inlier;
+                      rotation_inliers_[inlier] : inlier;
             solution_.inliers(level, max_clique[idx]) = true;
             final_clique.emplace_back(max_clique[idx]);
         }
@@ -283,10 +287,10 @@ namespace pagor {
     }
 
 
-    void PyramidRegistrationSolver::filterGraph(int level, const int max_clique_size){
+    void PyramidRegistrationSolver::filterGraph(int level, const int max_clique_size) {
         if (level >= inlier_graphs_.size())
             return;
-        clique_solver::Graph& graph = inlier_graphs_[level];
+        clique_solver::Graph &graph = inlier_graphs_[level];
         if (max_clique_size > 0 && graph.numVertices() > max_clique_size) {
             graph.pruneGraph(max_clique_size);
         }
@@ -349,10 +353,10 @@ namespace pagor {
         for (size_t k = 0; k < num_tims; ++k) {
             size_t i, j;
             std::tie(i, j) = clique_solver::k2ij(k, num_corr_);
-            const auto& weights = (*v1[A_(j, 0)] - *v1[A_(i, 0)])->consistent(*(*v2[A_(j, 1)] - *v2[A_(i, 1)]));
+            const auto &weights = (*v1[A_(j, 0)] - *v1[A_(i, 0)])->consistent(*(*v2[A_(j, 1)] - *v2[A_(i, 1)]));
             for (int level = 0; level < num_graphs_; ++level) {
                 if (weights(level) > 0.0) {
-                    #pragma omp critical
+#pragma omp critical
                     {
                         inlier_graphs_[level].addEdge(i, j);
                     }
@@ -364,8 +368,8 @@ namespace pagor {
         solution_.scale = 1.0;
     }
 
-    void PyramidRegistrationSolver::setQuadricFeatures(const std::vector<g3reg::QuadricFeature::Ptr > &src_features,
-                            const std::vector<g3reg::QuadricFeature::Ptr > &dst_features){
+    void PyramidRegistrationSolver::setQuadricFeatures(const std::vector<g3reg::QuadricFeature::Ptr> &src_features,
+                                                       const std::vector<g3reg::QuadricFeature::Ptr> &dst_features) {
         src_features_ = std::move(src_features);
         dst_features_ = std::move(dst_features);
     }

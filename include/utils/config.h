@@ -47,7 +47,7 @@ namespace config {
 
     extern double normal_radius;
     extern double fpfh_radius;
-	extern double ds_resolution;
+    extern double ds_resolution;
 
     extern double max_range;
     extern double min_range;
@@ -60,7 +60,7 @@ namespace config {
     extern double eigenvalue_thresh;
     extern Eigen::Vector3f voxel_resolution;
 
-    void readParameters(std::string config_file, char **argv);
+    void readParameters(std::string config_file = "", char **argv = nullptr);
 
     template<typename T>
     T get(const YAML::Node &node, const std::string &key, const T &default_value) {
