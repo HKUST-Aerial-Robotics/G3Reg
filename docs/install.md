@@ -1,9 +1,9 @@
 # Step-by-step installation instructions
 **a. Install packages from ubuntu source.**
 ```shell
-sudo apt install libgoogle-glog-dev libboost-dev libyaml-cpp-dev libomp-dev
+sudo apt install libboost-dev libyaml-cpp-dev libomp-dev
 ```
-**b. Follow the official guidance to install [GTSAM-4.2](https://github.com/borglab/gtsam/tree/4f66a491ffc83cf092d0d818b11dc35135521612), [PCL](https://github.com/PointCloudLibrary/pcl).**
+**b. Follow the official guidance to install [GTSAM-4.2](https://github.com/borglab/gtsam/tree/4f66a491ffc83cf092d0d818b11dc35135521612), [PCL](https://github.com/PointCloudLibrary/pcl), [GLOG](https://github.com/google/glog).**
 
 **c. Install iGraph 0.9.9 (To support [3DMAC](https://github.com/zhangxy0517/3D-Registration-with-Maximal-Cliques))**
 ```shell

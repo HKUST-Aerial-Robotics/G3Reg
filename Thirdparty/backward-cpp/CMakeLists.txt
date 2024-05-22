@@ -86,12 +86,3 @@ endif()
 add_library(backward ${libtype} backward.cpp)
 target_compile_definitions(backward PUBLIC ${BACKWARD_DEFINITIONS})
 target_include_directories(backward PUBLIC ${BACKWARD_INCLUDE_DIRS})
-
-install(
-    FILES "backward.hpp"
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-install(
-    FILES "BackwardConfig.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/backward
-)
