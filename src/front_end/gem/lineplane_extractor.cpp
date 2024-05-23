@@ -25,18 +25,18 @@ namespace g3reg {
         travel::estimateGround(*cloud_xyz, cloud_ground, cloud_nonground, tSrc);
         ground_time = t.toc();
 
-        cutCloud(cloud_nonground, FeatureType::None, config::voxel_resolution, voxel_map);
-        if (config::plane_aided) {
+        cutCloud(cloud_nonground, FeatureType::None, config.voxel_resolution, voxel_map);
+        if (config.plane_aided) {
             for (auto voxel_iter = voxel_map.begin(); voxel_iter != voxel_map.end(); ++voxel_iter) {
                 Voxel::Ptr voxel = voxel_iter->second;
                 if (voxel->parse()) {
-                    if (config::plane_aided) {
+                    if (config.plane_aided) {
                         voxel->setSemanticType(FeatureType::Plane);
                     }
                 }
             }
             MergePlanes(surface_features);
-            FilterSurface(surface_features, config::min_cluster_size);
+            FilterSurface(surface_features, config.min_cluster_size);
             plane_time = t.toc();
         } else {
             for (auto voxel_iter = voxel_map.begin(); voxel_iter != voxel_map.end(); ++voxel_iter) {
@@ -53,20 +53,20 @@ namespace g3reg {
             }
         }
 
-        if (config::cluster_mtd == "travel") {
+        if (config.cluster_mtd == "travel") {
             travel::Cluster(other_cloud, cluster_features, false);
-        } else if (config::cluster_mtd == "dcvc") {
+        } else if (config.cluster_mtd == "dcvc") {
             DCVC::Cluster(other_cloud, cluster_features, false);
         }
 
         cluster_time = t.toc();
 
-        if (config::num_lines > 0) {
+        if (config.num_lines > 0) {
             ExtractPole(cluster_features, line_features);
             for (int i = 0; i < line_features.size(); ++i) {
                 LineFeature::Ptr line_feature = line_features[i];
                 for (int j = 0; j < line_feature->cloud()->size(); ++j) {
-                    VoxelKey key = point_to_voxel_key(line_feature->cloud()->points[j], config::voxel_resolution);
+                    VoxelKey key = point_to_voxel_key(line_feature->cloud()->points[j], config.voxel_resolution);
                     auto voxel_iter = voxel_map.find(key);
                     if (voxel_iter != voxel_map.end()) {
                         voxel_iter->second->setSemanticType(FeatureType::Line);
@@ -77,11 +77,11 @@ namespace g3reg {
             line_time = t.toc();
         }
 
-        if (!config::plane_aided) {
+        if (!config.plane_aided) {
             ExtractPlanes(cluster_features, surface_features);
             for (SurfaceFeature::Ptr surface_feature: surface_features) {
                 for (int j = 0; j < surface_feature->cloud()->size(); ++j) {
-                    VoxelKey key = point_to_voxel_key(surface_feature->cloud()->points[j], config::voxel_resolution);
+                    VoxelKey key = point_to_voxel_key(surface_feature->cloud()->points[j], config.voxel_resolution);
                     auto voxel_iter = voxel_map.find(key);
                     if (voxel_iter != voxel_map.end()) {
                         voxel_iter->second->setSemanticType(FeatureType::Plane);
@@ -104,7 +104,7 @@ namespace g3reg {
             ClusterFeature::Ptr cluster_feature = cluster_features[i];
             const Eigen::Vector3d &eigen_values = cluster_feature->eigen_values();
 
-            if (eigen_values(1) / eigen_values(0) < config::eigenvalue_thresh) {
+            if (eigen_values(1) / eigen_values(0) < config.eigenvalue_thresh) {
                 continue;
             }
 
@@ -127,7 +127,7 @@ namespace g3reg {
 
             ClusterFeature::Ptr cluster_feature = cluster_features[i];
             Eigen::Vector3d eigen_values = cluster_feature->eigen_values();
-            if (eigen_values[2] / eigen_values[0] < config::eigenvalue_thresh / 2.0) {
+            if (eigen_values[2] / eigen_values[0] < config.eigenvalue_thresh / 2.0) {
                 continue;
             }
             double angle = abs(cluster_feature->direction().dot(Eigen::Vector3d(0, 0, 1)));
@@ -250,7 +250,7 @@ namespace g3reg {
     void TopKEllipse(std::vector<g3reg::QuadricFeature::Ptr> &ellipsoids, int k) {
         ellipsoids.erase(std::remove_if(ellipsoids.begin(), ellipsoids.end(), [](g3reg::QuadricFeature::Ptr ellipsoid) {
             const double &norm = ellipsoid->center().norm();
-            return (norm > config::max_range || norm < config::min_range);
+            return (norm > config.max_range || norm < config.min_range);
         }), ellipsoids.end());
         if (ellipsoids.size() < k)
             return;
@@ -276,7 +276,7 @@ namespace g3reg {
             g3reg::QuadricFeature::Ptr quadric_feature = std::dynamic_pointer_cast<g3reg::QuadricFeature>(line);
             ellipsoid_lines.push_back(quadric_feature);
         }
-        TopKEllipse(ellipsoid_lines, config::num_lines);
+        TopKEllipse(ellipsoid_lines, config.num_lines);
         ellipsoids.push_back(ellipsoid_lines);
 
         std::vector<g3reg::QuadricFeature::Ptr> ellipsoid_planes;
@@ -284,7 +284,7 @@ namespace g3reg {
             g3reg::QuadricFeature::Ptr quadric_feature = std::dynamic_pointer_cast<g3reg::QuadricFeature>(plane);
             ellipsoid_planes.push_back(quadric_feature);
         }
-        TopKEllipse(ellipsoid_planes, config::num_planes);
+        TopKEllipse(ellipsoid_planes, config.num_planes);
         ellipsoids.push_back(ellipsoid_planes);
 
         std::vector<g3reg::QuadricFeature::Ptr> ellipsoid_clusters;
@@ -292,10 +292,10 @@ namespace g3reg {
             g3reg::QuadricFeature::Ptr quadric_feature = std::dynamic_pointer_cast<g3reg::QuadricFeature>(cluster);
             ellipsoid_clusters.push_back(quadric_feature);
         }
-        TopKEllipse(ellipsoid_clusters, config::num_clusters);
+        TopKEllipse(ellipsoid_clusters, config.num_clusters);
         ellipsoids.push_back(ellipsoid_clusters);
 
-        if (config::use_pseudo_cov) {
+        if (config.use_pseudo_cov) {
             for (int i = 0; i < ellipsoids.size(); ++i) {
                 for (int j = 0; j < ellipsoids[i].size(); ++j) {
                     ellipsoids[i][j]->fitting();

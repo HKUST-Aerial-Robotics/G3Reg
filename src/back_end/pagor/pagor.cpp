@@ -62,8 +62,8 @@ namespace pagor {
 
         // initialize the parameters
         teaser::RobustRegistrationSolver::Params params;
-        params.noise_bound = config::vertex_info.noise_bound_vec[0];
-        pagor::PyramidRegistrationSolver solver(params, config::num_graphs);
+        params.noise_bound = config.vertex_info.noise_bound_vec[0];
+        pagor::PyramidRegistrationSolver solver(params, config.num_graphs);
         solver.setQuadricFeatures(matcher.getSrcEllipsoids(), matcher.getTgtEllipsoids());
         solver.solve(src_nodes, tgt_nodes, A);
         teaser::RegistrationSolution solution = std::move(solver.getSolution());
@@ -71,7 +71,7 @@ namespace pagor {
         robot_utils::TicToc verify_timer;
         Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
         bool verify_valid = true;
-        if (config::verify_mtd == "voxel" && matcher.getSrcVoxels().size() > 0 && matcher.getTgtVoxels().size() > 0) {
+        if (config.verify_mtd == "voxel" && matcher.getSrcVoxels().size() > 0 && matcher.getTgtVoxels().size() > 0) {
 //            std::tie(verify_valid, tf) = GeometryVerify(matcher.getSrcVoxels(), matcher.getTgtVoxels(), solution.candidates);
             std::tie(verify_valid, tf) = GeometryVerifyNanoFlann(matcher.getSrcVoxels(), matcher.getTgtVoxels(),
                                                                  solution.candidates);

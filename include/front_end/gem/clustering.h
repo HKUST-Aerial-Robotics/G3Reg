@@ -25,7 +25,7 @@ namespace DCVC {
             travel::estimateGround(*cloud, srcGround, *ptrSrcNonground, tSrc);
         } else
             ptrSrcNonground = cloud;
-        DCVCCluster<PointT> dcvc(g3reg::config::dcvc_file);
+        DCVCCluster<PointT> dcvc(g3reg::config.dcvc_file);
         std::vector<boost::shared_ptr<pcl::PointCloud<PointT>>> clusters_pcl;
         dcvc.segmentPointCloud(ptrSrcNonground, clusters_pcl);
         clusters.clear();
@@ -49,7 +49,7 @@ namespace travel {
         } else {
             ptrSrcNonground = cloud_ptr;
         }
-        travel::ObjectCluster<PointT> travel_object_seg(g3reg::config::travel_file);
+        travel::ObjectCluster<PointT> travel_object_seg(g3reg::config.travel_file);
         std::vector<boost::shared_ptr<pcl::PointCloud<PointT>>> clusters_pcl;
         travel_object_seg.segmentObjects(ptrSrcNonground, clusters_pcl);
         clusters.clear();
@@ -72,7 +72,7 @@ namespace pcl {
         // 在XY空间上进行聚类
         pcl::EuclideanClusterExtraction<PointT> cluster;
         cluster.setClusterTolerance(1.0);
-        cluster.setMinClusterSize(g3reg::config::min_cluster_size);
+        cluster.setMinClusterSize(g3reg::config.min_cluster_size);
         cluster.setSearchMethod(&kdtree);
         cluster.setInputCloud(cloud);
         std::vector<pcl::PointIndices> cluster_res;

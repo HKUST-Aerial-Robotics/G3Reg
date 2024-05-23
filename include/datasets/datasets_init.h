@@ -15,7 +15,7 @@
 inline DataLoader::Ptr CreateDataLoader() {
     DataLoader::Ptr data_loader;
     // use Lower case letters
-    std::string dataset_name = g3reg::config::dataset_name;
+    std::string dataset_name = g3reg::config.dataset_name;
     std::transform(dataset_name.begin(), dataset_name.end(), dataset_name.begin(), ::tolower);
     if (dataset_name == "kitti") {
         data_loader = std::make_shared<KittiLoader>();

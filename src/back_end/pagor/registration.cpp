@@ -45,15 +45,15 @@ namespace pagor {
                 solution_.candidates[level] = solution_.candidates[level - 1];
                 continue;
             }
-            if (config::tf_solver == "gmm_tls") {
+            if (config.tf_solver == "gmm_tls") {
                 solveTransformSVD(src, dst, max_clique, level);
                 solveTransformGMM(src_features_, dst_features_, max_clique, level, solution_.candidates[level]);
-            } else if (config::tf_solver == "gnc") {
+            } else if (config.tf_solver == "gnc") {
                 solveTransformSVD(src, dst, max_clique, level);
                 solveTransformGncTls(src, dst, max_clique, level, solution_.candidates[level]);
-            } else if (config::tf_solver == "svd") {
+            } else if (config.tf_solver == "svd") {
                 solveTransformSVD(src, dst, max_clique, level);
-            } else if (config::tf_solver == "teaser" || config::tf_solver == "quatro") {
+            } else if (config.tf_solver == "teaser" || config.tf_solver == "quatro") {
                 solveTransformTeaser(src, dst, max_clique, level);
             } else {
                 throw std::runtime_error("Unknown tf solver type");
@@ -215,7 +215,7 @@ namespace pagor {
 
         // Solve for rotation
         TEASER_DEBUG_INFO_MSG("Starting rotation solver.");
-        if (config::tf_solver == "quatro") {
+        if (config.tf_solver == "quatro") {
             quatro::QuatroSolver solver(params_);
             solver.solveForRotation(pruned_src_tims, pruned_dst_tims);
             rotation_inliers_mask_ = solver.getRotationInliersMask();
@@ -320,7 +320,7 @@ namespace pagor {
                 for (int level = 0; level < num_graphs_; ++level) {
                     clique_solver::MaxCliqueSolver mac_solver(clique_params);
                     max_cliques_[level] = mac_solver.findMaxClique(inlier_graphs_[level], prune_level);
-                    prune_level = config::grad_pmc ? max_cliques_[level].size() : 0;
+                    prune_level = config.grad_pmc ? max_cliques_[level].size() : 0;
                 }
             }
             for (int level = 0; level < num_graphs_; ++level) {

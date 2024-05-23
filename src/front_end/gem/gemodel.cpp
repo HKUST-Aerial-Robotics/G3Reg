@@ -87,18 +87,18 @@ namespace g3reg {
 
     clique_solver::GraphVertex::Ptr QuadricFeature::vertex() {
 
-        Eigen::Vector3d center = config::use_bbox_center ? center_geo_ : center_;
+        Eigen::Vector3d center = config.use_bbox_center ? center_geo_ : center_;
 
         Eigen::Matrix3d cov;
         Eigen::Vector3d ev;
-        if (config::use_pseudo_cov) {
-            normalized_cov(cov, ev, config::volume_chi2);
+        if (config.use_pseudo_cov) {
+            normalized_cov(cov, ev, config.volume_chi2);
         } else {
             cov = sigma_;
             ev = lambda_;
         }
 
-        clique_solver::GraphVertex::Ptr vertex = clique_solver::create_vertex(center, config::vertex_info, cov,
+        clique_solver::GraphVertex::Ptr vertex = clique_solver::create_vertex(center, config.vertex_info, cov,
                                                                               ev.maxCoeff());
         return vertex;
     }
@@ -110,7 +110,7 @@ namespace g3reg {
 
         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> saes(sigma_);
         lambda_ = saes.eigenvalues();
-        if (lambda_(2) / lambda_(0) < config::eigenvalue_thresh) {
+        if (lambda_(2) / lambda_(0) < config.eigenvalue_thresh) {
             return false;
         }
 
@@ -164,11 +164,11 @@ namespace g3reg {
         }
 
         //point to plane distance
-        if (abs((voxel.center() - center_).dot(normal_)) > config::plane_distance_thresh) {
+        if (abs((voxel.center() - center_).dot(normal_)) > config.plane_distance_thresh) {
             return false;
         }
         // normal
-        if (abs(voxel.normal().dot(normal_)) < config::plane_normal_thresh) {
+        if (abs(voxel.normal().dot(normal_)) < config.plane_normal_thresh) {
             return false;
         }
 
@@ -201,11 +201,11 @@ namespace g3reg {
 
     bool SurfaceFeature::consistent(const SurfaceFeature &surface) {
         //point to plane distance
-        if (abs((surface.center() - center_).dot(normal_)) > config::plane_distance_thresh) {
+        if (abs((surface.center() - center_).dot(normal_)) > config.plane_distance_thresh) {
             return false;
         }
         // normal
-        if (abs(surface.normal().dot(normal_)) < config::plane_normal_thresh) {
+        if (abs(surface.normal().dot(normal_)) < config.plane_normal_thresh) {
             return false;
         }
 

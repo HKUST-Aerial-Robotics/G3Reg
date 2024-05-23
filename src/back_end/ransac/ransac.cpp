@@ -95,10 +95,10 @@ namespace ransac {
 
         // RANSAC
         RansacParams params;
-        params.max_iterations = config::ransac_max_iterations;
+        params.max_iterations = config.ransac_max_iterations;
         params.min_inliers = 3;
-        params.inlier_threshold = config::ransac_inlier_threshold;
-        params.inliers_to_end = config::ransac_inliers_to_end;
+        params.inlier_threshold = config.ransac_inlier_threshold;
+        params.inliers_to_end = config.ransac_inliers_to_end;
 
         std::vector<Eigen::Vector3d> src_points, tgt_points;
         for (int i = 0; i < src_nodes.size(); ++i) {

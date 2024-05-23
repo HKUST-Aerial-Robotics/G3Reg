@@ -77,9 +77,9 @@ int main(int argc, char **argv) {
         std::cout << "Usage: reg_bm config_file pcd1" << std::endl;
         return -1;
     }
-    std::string config_path = config::project_path + "/" + argv[1];
+    std::string config_path = config.project_path + "/" + argv[1];
     InitGLOG(config_path, argv);
-    config::readParameters(config_path, argv);
+    config.load_config(config_path, argv);
     pcl::PointCloud<pcl::PointXYZ>::Ptr source(new pcl::PointCloud<pcl::PointXYZ>);
     if (pcl::io::loadPCDFile<pcl::PointXYZ>(std::string(argv[2]), *source) == -1) //* load the file
     {
@@ -89,9 +89,9 @@ int main(int argc, char **argv) {
 
     g3reg::FeatureSet feature_set;
     g3reg::PLCExtractor plc_extractor;
-    config::num_clusters = 1000;
-    config::num_lines = 1000;
-    config::num_planes = 1000;
+    config.num_clusters = 1000;
+    config.num_lines = 1000;
+    config.num_planes = 1000;
     plc_extractor.ExtractFeature(source, feature_set.lines, feature_set.planes, feature_set.clusters);
     std::vector<std::vector<g3reg::QuadricFeature::Ptr>> src_ellipsoids;
     TransformToEllipsoid(feature_set, src_ellipsoids);

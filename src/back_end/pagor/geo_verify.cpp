@@ -13,17 +13,17 @@ using namespace g3reg;
 void mark_free_voxels_by_sampling(const Eigen::Vector3d &start_point, const Eigen::Vector3d &end_point,
                                   VoxelMap &voxel_map) {
     // Initialize the start and end voxel keys
-    VoxelKey start_key = point_to_voxel_key(start_point, config::voxel_resolution);
-    VoxelKey end_key = point_to_voxel_key(end_point, config::voxel_resolution);
+    VoxelKey start_key = point_to_voxel_key(start_point, config.voxel_resolution);
+    VoxelKey end_key = point_to_voxel_key(end_point, config.voxel_resolution);
 
     // Calculate the ray direction
     Eigen::Vector3d ray_direction = (end_point - start_point).normalized();
-    double step = config::voxel_resolution[0] / 2.0;
-    double total_distance = (end_point - start_point).norm() + config::voxel_resolution[0];
+    double step = config.voxel_resolution[0] / 2.0;
+    double total_distance = (end_point - start_point).norm() + config.voxel_resolution[0];
     int num_samples = static_cast<int>(std::floor(total_distance / step));
     for (int i = 0; i < num_samples; ++i) {
         Eigen::Vector3d sample_point = start_point + i * step * ray_direction;
-        VoxelKey sample_key = point_to_voxel_key(sample_point, config::voxel_resolution);
+        VoxelKey sample_key = point_to_voxel_key(sample_point, config.voxel_resolution);
         VoxelMap::iterator voxel_iter = voxel_map.find(sample_key);
         if (voxel_iter == voxel_map.end()) {
             Voxel::Ptr voxel = Voxel::Ptr(new Voxel(sample_key, FeatureType::Free));
@@ -90,7 +90,7 @@ float RobustKernel(float residual, float hyper_parameter, std::string type) {
 }
 
 float ComputeResidual(const Eigen::Vector3f &query, const Eigen::Vector3f &tgt_pt, const VoxelMap &voxel_map_tgt) {
-    VoxelKey tgt_key = point_to_voxel_key(tgt_pt, config::voxel_resolution);
+    VoxelKey tgt_key = point_to_voxel_key(tgt_pt, config.voxel_resolution);
     VoxelMap::const_iterator voxel_iter = voxel_map_tgt.find(tgt_key);
     if (voxel_iter == voxel_map_tgt.end()) {
         return (query - tgt_pt).norm();
@@ -123,7 +123,7 @@ std::pair<bool, Eigen::Matrix4d> GeometryVerify(const VoxelMap &voxel_map_src, c
     tgt_cloud = AdaptiveDownsample(voxel_map_tgt, 1);
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tgt_tree(new pcl::search::KdTree<pcl::PointXYZ>);
     tgt_tree->setInputCloud(tgt_cloud);
-    float threshold = config::voxel_resolution[0];
+    float threshold = config.voxel_resolution[0];
     std::pair<float, Eigen::Matrix4d> best_pair = std::make_pair(INFINITY, candidates[0]);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_src(new pcl::PointCloud<pcl::PointXYZ>);
@@ -141,7 +141,7 @@ std::pair<bool, Eigen::Matrix4d> GeometryVerify(const VoxelMap &voxel_map_src, c
             if (pointIdxNKNSearch[0] < 0 || pointIdxNKNSearch[0] >= tgt_cloud->size()) continue;
             residual = ComputeResidual(transformed_src->points[i].getVector3fMap(),
                                        tgt_cloud->points[pointIdxNKNSearch[0]].getVector3fMap(), voxel_map_tgt);
-            total_residual += RobustKernel(residual, threshold, config::robust_kernel);
+            total_residual += RobustKernel(residual, threshold, config.robust_kernel);
             intersect_num++;
         }
         total_residual = intersect_num > 0 ? total_residual / intersect_num : INFINITY;
@@ -189,7 +189,7 @@ std::pair<bool, Eigen::Matrix4d> GeometryVerifyNanoFlann(const VoxelMap &voxel_m
 
     KDTreeVectorOfVectorsAdaptor<std::vector<Eigen::Vector3f>, float> kdtree(3, tgt_pts, 10, 1);
 
-    float threshold = config::voxel_resolution[0];
+    float threshold = config.voxel_resolution[0];
     std::pair<float, Eigen::Matrix4d> best_pair = std::make_pair(INFINITY, candidates[0]);
 
     Eigen::Matrix4f last_candidate = Eigen::Matrix4f::Identity();
@@ -208,7 +208,7 @@ std::pair<bool, Eigen::Matrix4d> GeometryVerifyNanoFlann(const VoxelMap &voxel_m
 
             if (ret_indexes[0] < 0 || ret_indexes[0] >= tgt_pts.size()) continue;
             residual = ComputeResidual(transformed_src_pts[i], tgt_pts[ret_indexes[0]], voxel_map_tgt);
-            total_residual += RobustKernel(residual, threshold, config::robust_kernel);
+            total_residual += RobustKernel(residual, threshold, config.robust_kernel);
             intersect_num++;
         }
         total_residual = intersect_num > 0 ? total_residual / intersect_num : INFINITY;
@@ -239,7 +239,7 @@ Eigen::Matrix4d GeometryVerify(typename pcl::PointCloud<pcl::PointXYZ>::Ptr src_
     tree->setInputCloud(tgt_cloud_down);
 
     Eigen::Matrix4d best_pose = Eigen::Matrix4d::Identity();
-    float threshold = config::voxel_resolution[0];
+    float threshold = config.voxel_resolution[0];
     double best_score = INFINITY;
     pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_src(new pcl::PointCloud<pcl::PointXYZ>);
     for (auto tf: candidates) {

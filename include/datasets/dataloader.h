@@ -21,7 +21,7 @@ public:
     std::map<int, std::map<int, Eigen::Matrix4d>> lidar_poses; // seq, frame_id, pose
 public:
     DataLoader() {
-        std::string test_file = g3reg::config::project_path + "/" + g3reg::config::test_file;
+        std::string test_file = g3reg::config.project_path + "/" + g3reg::config.test_file;
         LOG(INFO) << "Reading test file: " << test_file;
         LoadTestFile(test_file);
     }

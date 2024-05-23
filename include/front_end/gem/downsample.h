@@ -107,7 +107,7 @@ namespace travel {
                         pcl::PointCloud<PointT> &nonground,
                         double &time_taken) {
         travel::TravelGroundSeg<PointT> travel_ground_seg;
-        travel_ground_seg.setParams(g3reg::config::max_range, g3reg::config::min_range);
+        travel_ground_seg.setParams(g3reg::config.max_range, g3reg::config.min_range);
         travel_ground_seg.estimateGround(cloud, ground, nonground, time_taken);
     }
 }

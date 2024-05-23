@@ -43,9 +43,9 @@ int main(int argc, char **argv) {
         std::cout << "Usage: reg_bm config_file pcd1 pcd2" << std::endl;
         return -1;
     }
-    std::string config_path = config::project_path + "/" + argv[1];
+    std::string config_path = config.project_path + "/" + argv[1];
     InitGLOG(config_path, argv);
-    config::readParameters(config_path, argv);
+    config.load_config(config_path, argv);
     pcl::PointCloud<pcl::PointXYZ>::Ptr source(new pcl::PointCloud<pcl::PointXYZ>);
     if (pcl::io::loadPCDFile<pcl::PointXYZ>(std::string(argv[2]), *source) == -1) //* load the file
     {

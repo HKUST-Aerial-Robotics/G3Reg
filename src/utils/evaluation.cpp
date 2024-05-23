@@ -31,13 +31,13 @@ FeatureMetric FrontEndEval(pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
     Association A;
     g3reg::EllipsoidMatcher matcher(src_cloud, tgt_cloud);
     robot_utils::TicToc timer;
-    if (config::front_end == "gem") {
+    if (config.front_end == "gem") {
         A = std::move(matcher.matching(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-    } else if (config::front_end == "segregator") {
+    } else if (config.front_end == "segregator") {
 //        A = std::move(segregator::SemanticMatch(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-    } else if (config::front_end == "fpfh") {
+    } else if (config.front_end == "fpfh") {
         A = std::move(fpfh::matching(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-    } else if (config::front_end == "fcgf") {
+    } else if (config.front_end == "fcgf") {
         A = std::move(fcgf::matching(pair_info, src_nodes, tgt_nodes));
     } else {
         std::cout << "Wrong front end type!" << std::endl;
@@ -50,7 +50,7 @@ FeatureMetric FrontEndEval(pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
     Eigen::Matrix3Xd src_mat_t = T_gt.block(0, 0, 3, 3) * src_mat + T_gt.block(0, 3, 3, 1).replicate(1, src_mat.cols());
 
     for (int i = 0; i < A.rows(); ++i) {
-        if ((src_mat_t.col(A(i, 0)) - tgt_mat.col(A(i, 1))).norm() < config::tp_thresh) {
+        if ((src_mat_t.col(A(i, 0)) - tgt_mat.col(A(i, 1))).norm() < config.tp_thresh) {
             result.tp++;
         }
     }

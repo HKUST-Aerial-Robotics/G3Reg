@@ -38,14 +38,14 @@ public:
     }
 
     void LoadLiDARPoses(std::string dataset_root, int seq) {
-        std::string pose_file = (boost::format("%s/%02d/poses.txt") % g3reg::config::dataset_root % seq).str();
+        std::string pose_file = (boost::format("%s/%02d/poses.txt") % g3reg::config.dataset_root % seq).str();
         //    read kitti pose txt
         std::fstream f;
         f.open(pose_file, std::ios::in);
         if (!f.is_open()) {
             LOG(FATAL) << "Cannot open pose file: " << pose_file;
         }
-        Eigen::Matrix4d Tr = GetTr(g3reg::config::dataset_root, seq); // lidar to camera
+        Eigen::Matrix4d Tr = GetTr(g3reg::config.dataset_root, seq); // lidar to camera
         std::string line;
         int num = -1;
         lidar_poses[seq] = std::map<int, Eigen::Matrix4d>();
@@ -89,7 +89,7 @@ public:
     }
 
     void ReadSeqNum() {
-        std::string dataset_dir = g3reg::config::dataset_root;
+        std::string dataset_dir = g3reg::config.dataset_root;
         std::map<int, int> frame_num_map;
         // traverse all sequences
         for (int seq = 0; seq < 11; ++seq) {

@@ -16,8 +16,8 @@ namespace fpfh {
     void Match(pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud,
                std::vector<std::pair<int, int>> &corres) {
         // KITTI parameters for FPFH while voxel downsampling resolution is 0.3
-        double normal_radius = config::normal_radius;
-        double fpfh_radius = config::fpfh_radius;
+        double normal_radius = config.normal_radius;
+        double fpfh_radius = config.fpfh_radius;
 
         // Compute FPFH
         teaser::FPFHEstimation fpfh;
@@ -63,12 +63,12 @@ namespace fpfh {
 
         for (int i = 0; i < src_ds->size(); i++) {
             const Eigen::Vector3d &center = src_ds->at(i).getVector3fMap().cast<double>();
-            src_nodes.push_back(clique_solver::create_vertex(center, config::vertex_info));
+            src_nodes.push_back(clique_solver::create_vertex(center, config.vertex_info));
         }
 
         for (int i = 0; i < tgt_ds->size(); i++) {
             const Eigen::Vector3d &center = tgt_ds->at(i).getVector3fMap().cast<double>();
-            tgt_nodes.push_back(clique_solver::create_vertex(center, config::vertex_info));
+            tgt_nodes.push_back(clique_solver::create_vertex(center, config.vertex_info));
         }
         return assoc;
     }
@@ -149,14 +149,14 @@ namespace iss_fpfh {
         pcl::PointCloud<pcl::PointXYZ>::Ptr issT(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointIndicesPtr iss_IdxS(new pcl::PointIndices);
         pcl::PointIndicesPtr iss_IdxT(new pcl::PointIndices);
-        pcl::issKeyPointExtration(src_cloud, issS, iss_IdxS, config::ds_resolution);
-        pcl::issKeyPointExtration(tgt_cloud, issT, iss_IdxT, config::ds_resolution);
+        pcl::issKeyPointExtration(src_cloud, issS, iss_IdxS, config.ds_resolution);
+        pcl::issKeyPointExtration(tgt_cloud, issT, iss_IdxT, config.ds_resolution);
 
         // FPFH descriptor parameters
         pcl::PointCloud<pcl::FPFHSignature33>::Ptr fpfhS(new pcl::PointCloud<pcl::FPFHSignature33>());
         pcl::PointCloud<pcl::FPFHSignature33>::Ptr fpfhT(new pcl::PointCloud<pcl::FPFHSignature33>());
-        fpfhComputation(src_cloud, config::ds_resolution, iss_IdxS, fpfhS);
-        fpfhComputation(tgt_cloud, config::ds_resolution, iss_IdxT, fpfhT);
+        fpfhComputation(src_cloud, config.ds_resolution, iss_IdxS, fpfhS);
+        fpfhComputation(tgt_cloud, config.ds_resolution, iss_IdxT, fpfhT);
 
         // Find correspondences
         std::vector<int> corr_NOS, corr_NOT;
@@ -189,8 +189,8 @@ namespace iss_fpfh {
         // voxelize
         pcl::PointCloud<pcl::PointXYZ>::Ptr src_ds(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_ds(new pcl::PointCloud<pcl::PointXYZ>);
-        voxelize(ptrSrcNonground, src_ds, config::ds_resolution);
-        voxelize(ptrTgtNonground, tgt_ds, config::ds_resolution);
+        voxelize(ptrSrcNonground, src_ds, config.ds_resolution);
+        voxelize(ptrTgtNonground, tgt_ds, config.ds_resolution);
 
         std::vector<std::pair<int, int>> corres;
         Match(src_ds, tgt_ds, corres);
@@ -208,12 +208,12 @@ namespace iss_fpfh {
 
         for (int i = 0; i < src_ds->size(); i++) {
             const Eigen::Vector3d &center = src_ds->at(i).getVector3fMap().cast<double>();
-            src_nodes.push_back(clique_solver::create_vertex(center, config::vertex_info));
+            src_nodes.push_back(clique_solver::create_vertex(center, config.vertex_info));
         }
 
         for (int i = 0; i < tgt_ds->size(); i++) {
             const Eigen::Vector3d &center = tgt_ds->at(i).getVector3fMap().cast<double>();
-            tgt_nodes.push_back(clique_solver::create_vertex(center, config::vertex_info));
+            tgt_nodes.push_back(clique_solver::create_vertex(center, config.vertex_info));
         }
         return assoc;
     }

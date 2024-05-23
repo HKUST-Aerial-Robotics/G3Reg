@@ -14,10 +14,10 @@ int main(int argc, char **argv) {
         std::cout << "Usage: reg_bm config_file test_file" << std::endl;
         return -1;
     }
-    std::string config_path = config::project_path + "/" + argv[1];
+    std::string config_path = config.project_path + "/" + argv[1];
     InitGLOG(config_path, argv);
-    LOG(INFO) << "Test file: " << config::test_file;
-    config::readParameters(config_path, argv);
+    LOG(INFO) << "Test file: " << config.test_file;
+    config.load_config(config_path, argv);
 
     DataLoader::Ptr dataloader_ptr = CreateDataLoader();
     auto &items = dataloader_ptr->items;
@@ -27,9 +27,9 @@ int main(int argc, char **argv) {
     std::map<int, Evaluation> eval_seq_map;
     for (auto &item: items) {
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud = dataloader_ptr->GetCloud(config::dataset_root, item.seq,
+        pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud = dataloader_ptr->GetCloud(config.dataset_root, item.seq,
                                                                                  item.src_idx);
-        pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud = dataloader_ptr->GetCloud(config::dataset_root, item.seq_db,
+        pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud = dataloader_ptr->GetCloud(config.dataset_root, item.seq_db,
                                                                                  item.tgt_idx);
         FRGresult solution = g3reg::GlobalRegistration(src_cloud, tgt_cloud,
                                                        std::make_tuple(item.seq, item.src_idx, item.tgt_idx));
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
     // compute average
     LOG(INFO) << "Evaluation for all sequences: ";
     eval.computePoseErr();
-    eval.saveStatistics(config::log_dir);
+    eval.saveStatistics(config.log_dir);
     LOG(INFO) << "Succ ratio: " << eval.success_rate << "/" << eval.success_rate_upper
               << " Time front/graph/clique/solve_tf/verify/total: " << eval.feature_time_avg << "/"
               << eval.graph_time_avg << "/" << eval.clique_time_avg
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
         int seq = eval_dict.first;
         Evaluation eval_seq = eval_dict.second;
         eval_seq.computePoseErr();
-        eval_seq.saveStatistics(config::log_dir, seq);
+        eval_seq.saveStatistics(config.log_dir, seq);
         LOG(INFO) << "Seq: " << seq << "(#items: " << eval_seq.num << ")" << ", Succ ratio: " << eval_seq.success_rate
                   << "/" << eval_seq.success_rate_upper
                   << " Time front/graph/clique/solve_tf/verify/total: " << eval_seq.feature_time_avg << "/"

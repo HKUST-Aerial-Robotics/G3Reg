@@ -20,8 +20,7 @@ namespace g3reg {
                                const Eigen::MatrixX3d &tgt_corresp,
                                const Eigen::MatrixX3d &src_cloud,
                                const Eigen::MatrixX3d &tgt_cloud,
-                               const std::vector<double> &noise_bound_vec = {0.2},
-                               std::string tf_solver = "gnc");
+                               const Config &config_custom = config);
 }
 
 

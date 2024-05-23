@@ -16,10 +16,10 @@ int main(int argc, char **argv) {
         std::cout << "Usage: reg_bm config_file test_file" << std::endl;
         return -1;
     }
-    std::string config_path = config::project_path + "/" + argv[1];
+    std::string config_path = config.project_path + "/" + argv[1];
     InitGLOG(config_path, argv);
-    LOG(INFO) << "Test file: " << config::test_file;
-    config::readParameters(config_path, argv);
+    LOG(INFO) << "Test file: " << config.test_file;
+    config.load_config(config_path, argv);
 
     std::map<int, std::map<std::string, std::vector<double>>> result_map;
     DataLoader::Ptr dataloader_ptr = CreateDataLoader();
@@ -37,9 +37,9 @@ int main(int argc, char **argv) {
 //#pragma omp parallel for
     for (auto &item: items) {
 
-        pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud = dataloader_ptr->GetCloud(config::dataset_root, item.seq,
+        pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud = dataloader_ptr->GetCloud(config.dataset_root, item.seq,
                                                                                  item.src_idx);
-        pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud = dataloader_ptr->GetCloud(config::dataset_root, item.seq,
+        pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud = dataloader_ptr->GetCloud(config.dataset_root, item.seq,
                                                                                  item.tgt_idx);
         FeatureMetric metric = FrontEndEval(src_cloud, tgt_cloud, std::make_tuple(item.seq, item.src_idx, item.tgt_idx),
                                             item.pose);

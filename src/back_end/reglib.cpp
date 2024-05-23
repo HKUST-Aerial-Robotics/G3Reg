@@ -26,23 +26,23 @@ namespace g3reg { //fast and robust global registration
         Association A;
         g3reg::EllipsoidMatcher matcher(src_cloud, tgt_cloud);
         robot_utils::TicToc front_end_timer, timer;
-        if (config::front_end == "gem") {
+        if (config.front_end == "gem") {
             A = std::move(matcher.matching(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-        } else if (config::front_end == "fpfh") {
+        } else if (config.front_end == "fpfh") {
             A = std::move(fpfh::matching(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-        } else if (config::front_end == "iss_fpfh") {
+        } else if (config.front_end == "iss_fpfh") {
             A = std::move(iss_fpfh::matching(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-        } else if (config::front_end == "fcgf") {
+        } else if (config.front_end == "fcgf") {
             A = std::move(fcgf::matching(pair_info, src_nodes, tgt_nodes));
-        } else if (config::front_end == "none") {
+        } else if (config.front_end == "none") {
         }
         result.feature_time = front_end_timer.toc();
 
-        if (config::back_end == "pagor") {
+        if (config.back_end == "pagor") {
             pagor::solve(src_nodes, tgt_nodes, A, matcher, result);
-        } else if (config::back_end == "ransac") {
+        } else if (config.back_end == "ransac") {
             ransac::solve(src_nodes, tgt_nodes, A, result);
-        } else if (config::back_end == "3dmac") {
+        } else if (config.back_end == "3dmac") {
             mac_reg::solve(src_nodes, tgt_nodes, A, result);
         } else {
             throw std::runtime_error("Unknown back end method");
@@ -80,13 +80,11 @@ namespace g3reg { //fast and robust global registration
                                const Eigen::MatrixX3d &tgt_corresp,
                                const Eigen::MatrixX3d &src_cloud,
                                const Eigen::MatrixX3d &tgt_cloud,
-                               const std::vector<double> &noise_bound_vec,
-                               std::string tf_solver) {
+                               const Config &config_custom) {
 
         assert(src_corresp.rows() == tgt_corresp.rows());
 
-        config::tf_solver = tf_solver;
-        config::vertex_info.noise_bound_vec = noise_bound_vec;
+        config = config_custom;
 
         FRGresult result;
         std::vector<GraphVertex::Ptr> src_nodes, tgt_nodes;
@@ -102,17 +100,17 @@ namespace g3reg { //fast and robust global registration
             A(i, 0) = i;
             A(i, 1) = i;
             const Eigen::Vector3d &center = src_corresp.row(i);
-            src_nodes.push_back(clique_solver::create_vertex(center, config::vertex_info));
+            src_nodes.push_back(clique_solver::create_vertex(center, config.vertex_info));
             const Eigen::Vector3d &center_tgt = tgt_corresp.row(i);
-            tgt_nodes.push_back(clique_solver::create_vertex(center_tgt, config::vertex_info));
+            tgt_nodes.push_back(clique_solver::create_vertex(center_tgt, config.vertex_info));
         }
         result.feature_time = front_end_timer.toc();
 
-        if (config::back_end == "pagor") {
+        if (config.back_end == "pagor") {
             pagor::solve(src_nodes, tgt_nodes, A, matcher, result);
-        } else if (config::back_end == "ransac") {
+        } else if (config.back_end == "ransac") {
             ransac::solve(src_nodes, tgt_nodes, A, result);
-        } else if (config::back_end == "3dmac") {
+        } else if (config.back_end == "3dmac") {
             mac_reg::solve(src_nodes, tgt_nodes, A, result);
         } else {
             throw std::runtime_error("Unknown back end method");

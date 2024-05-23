@@ -174,7 +174,7 @@ namespace g3reg {
         std::vector<std::vector<GEM::Ptr>> src_gems_vec(semantic_num), tgt_gems_vec(semantic_num);
         // build GEMs
         double neighborhood_radius = 10.0; // unit: m
-        if (config::assoc_method == "fpfh") {
+        if (config.assoc_method == "fpfh") {
             std::vector<std::vector<Eigen::VectorXd>> src_descriptors = computeFPFHFeatures(src_ellipsoids_vec_,
                                                                                             neighborhood_radius);
             std::vector<std::vector<Eigen::VectorXd>> tgt_descriptors = computeFPFHFeatures(tgt_ellipsoids_vec_,
@@ -190,7 +190,7 @@ namespace g3reg {
                     tgt_gems_vec[i].push_back(gem);
                 }
             }
-        } else if (config::assoc_method == "hash_desc") {
+        } else if (config.assoc_method == "hash_desc") {
             pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud(new pcl::PointCloud<pcl::PointXYZ>());
             std::vector<Eigen::Vector3d> src_normals;
             std::vector<FeatureType> src_labels;
@@ -238,7 +238,7 @@ namespace g3reg {
                     index++;
                 }
             }
-        } else if (config::assoc_method == "wasserstein") {
+        } else if (config.assoc_method == "wasserstein") {
             for (int i = 0; i < semantic_num; ++i) {
                 src_gems_vec[i].reserve(src_ellipsoids_vec_[i].size());
                 for (int j = 0; j < src_ellipsoids_vec_[i].size(); ++j) {
@@ -250,7 +250,7 @@ namespace g3reg {
                     tgt_gems_vec[i].push_back(gem);
                 }
             }
-        } else if (config::assoc_method == "ev_feature") {
+        } else if (config.assoc_method == "ev_feature") {
             for (int i = 0; i < semantic_num; ++i) {
                 src_gems_vec[i].reserve(src_ellipsoids_vec_[i].size());
                 for (int j = 0; j < src_ellipsoids_vec_[i].size(); ++j) {
@@ -262,7 +262,7 @@ namespace g3reg {
                     tgt_gems_vec[i].push_back(gem);
                 }
             }
-        } else if (config::assoc_method == "iou3d") {
+        } else if (config.assoc_method == "iou3d") {
             for (int i = 0; i < semantic_num; ++i) {
                 src_gems_vec[i].reserve(src_ellipsoids_vec_[i].size());
                 for (int j = 0; j < src_ellipsoids_vec_[i].size(); ++j) {
@@ -274,16 +274,16 @@ namespace g3reg {
                     tgt_gems_vec[i].push_back(gem);
                 }
             }
-        } else if (config::assoc_method == "all_to_all" || config::assoc_method == "random_select") {
+        } else if (config.assoc_method == "all_to_all" || config.assoc_method == "random_select") {
 
         } else {
-            throw std::runtime_error("Unknown association method: " + config::assoc_method);
+            throw std::runtime_error("Unknown association method: " + config.assoc_method);
         }
 
         // obtain the association
         std::vector<std::pair<int, int>> assoc_vec;
         int src_num = 0, tgt_num = 0;
-        if (config::assoc_method == "all_to_all") {
+        if (config.assoc_method == "all_to_all") {
             for (int i = 0; i < semantic_num; ++i) {
                 for (int j = 0; j < src_ellipsoids_vec_[i].size(); ++j) {
                     for (int k = 0; k < tgt_ellipsoids_vec_[i].size(); ++k) {
@@ -293,9 +293,9 @@ namespace g3reg {
                 src_num += src_ellipsoids_vec_[i].size();
                 tgt_num += tgt_ellipsoids_vec_[i].size();
             }
-        } else if (config::assoc_method == "random_select") {
+        } else if (config.assoc_method == "random_select") {
             for (int i = 0; i < semantic_num; ++i) {
-                int topK = std::min(config::assoc_topk, (int) tgt_ellipsoids_vec_[i].size());
+                int topK = std::min(config.assoc_topk, (int) tgt_ellipsoids_vec_[i].size());
                 for (int j = 0; j < src_ellipsoids_vec_[i].size(); ++j) {
                     for (int k = 0; k < topK; ++k) {
                         assoc_vec.push_back(std::make_pair(src_num + j, tgt_num + k));
@@ -307,7 +307,7 @@ namespace g3reg {
         } else {
             for (int i = 0; i < semantic_num; i++) {
                 const std::vector<std::pair<int, int>> &assoc_vec_i = MatchingGEMs(src_gems_vec[i], tgt_gems_vec[i],
-                                                                                   config::assoc_topk);
+                                                                                   config.assoc_topk);
                 for (int j = 0; j < assoc_vec_i.size(); ++j) {
                     assoc_vec.push_back(
                             std::make_pair(src_num + assoc_vec_i[j].first, tgt_num + assoc_vec_i[j].second));
@@ -376,7 +376,7 @@ namespace g3reg {
         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen_solver(covariance);
         Eigen::Vector3d eigen_values = eigen_solver.eigenvalues(); // sorted in ascending order
         Eigen::Matrix3d eigen_vectors = eigen_solver.eigenvectors();
-        Eigen::Vector3d size = 2 * config::volume_chi2 * eigen_values.array().sqrt();
+        Eigen::Vector3d size = 2 * config.volume_chi2 * eigen_values.array().sqrt();
         feature->set_center(center);
         feature->set_center_geo(center);
         feature->set_size(size);

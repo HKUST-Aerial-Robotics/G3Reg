@@ -21,11 +21,11 @@ private:
 public:
     KITTI360Loader() : DataLoader() {
         LOG(INFO) << "Load KITTI360 Dataset.";
-        calib_lidar_to_pose = getLidarToIMU(g3reg::config::dataset_root);
+        calib_lidar_to_pose = getLidarToIMU(g3reg::config.dataset_root);
     }
 
     Eigen::Matrix4d getEgoMotion(int seq, int frame_id) {
-        Eigen::Matrix4d tf = getLidarPose(g3reg::config::dataset_root, seq, frame_id);
+        Eigen::Matrix4d tf = getLidarPose(g3reg::config.dataset_root, seq, frame_id);
         if (lidar_poses[seq].find(frame_id) != lidar_poses[seq].end() &&
             lidar_poses[seq].find(frame_id - 1) != lidar_poses[seq].end()) {
             return lidar_poses[seq][frame_id].inverse() * lidar_poses[seq][frame_id - 1];

@@ -184,7 +184,7 @@ public:
         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> saes(sigma_);
         lambda_ = saes.eigenvalues();
         normal_ = saes.eigenvectors().col(0);
-        if (lambda_(1) / lambda_(0) < g3reg::config::eigenvalue_thresh) {
+        if (lambda_(1) / lambda_(0) < g3reg::config.eigenvalue_thresh) {
             return false;
         }
         return true;

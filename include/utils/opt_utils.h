@@ -20,7 +20,7 @@ namespace gtsam {
     class Point2PointFactor : public NoiseModelFactor1<Pose3> {
 
     private:
-        typedef NoiseModelFactor1 <Pose3> Base;
+        typedef NoiseModelFactor1<Pose3> Base;
 
     public:
         Eigen::Vector3d msrc_, mtgt_; ///< src and tgt measurements
@@ -47,7 +47,7 @@ namespace gtsam {
     class Point2PlaneFactor : public NoiseModelFactor1<Pose3> {
 
     private:
-        typedef NoiseModelFactor1 <Pose3> Base;
+        typedef NoiseModelFactor1<Pose3> Base;
 
     public:
         Eigen::Vector3d msrc_, mtgt_, mnormal_; ///< src and tgt measurements
@@ -75,7 +75,7 @@ namespace gtsam {
     class Point2LineFactor : public NoiseModelFactor1<Pose3> {
 
     private:
-        typedef NoiseModelFactor1 <Pose3> Base;
+        typedef NoiseModelFactor1<Pose3> Base;
 
     public:
         Eigen::Vector3d msrc_, mtgt_, mdirection_; ///< src and tgt measurements
@@ -102,7 +102,7 @@ namespace gtsam {
     class Gaussian2GaussianFactor : public NoiseModelFactor1<Pose3> {
 
     private:
-        typedef NoiseModelFactor1 <Pose3> Base;
+        typedef NoiseModelFactor1<Pose3> Base;
 
     public:
         Eigen::Vector3d m_c1, m_c2;
@@ -135,7 +135,7 @@ namespace gtsam {
     class Point2GaussianFactor : public NoiseModelFactor1<Pose3> {
 
     private:
-        typedef NoiseModelFactor1 <Pose3> Base;
+        typedef NoiseModelFactor1<Pose3> Base;
 
     public:
         Eigen::Vector3d m_c1, m_c2;
