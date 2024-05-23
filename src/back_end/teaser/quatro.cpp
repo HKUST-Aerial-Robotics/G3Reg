@@ -43,7 +43,8 @@ namespace quatro {
                                           Eigen::Matrix<bool, 1, Eigen::Dynamic> *inliers) {
         assert(rotation);                 // make sure R is not a nullptr
         assert(src.cols() == dst.cols()); // check dimensions of input data
-        assert(params_.rotation_gnc_factor > 1);   // make sure mu will increase        gnc_factor -> rotation_gnc_factor
+        assert(params_.rotation_gnc_factor >
+               1);   // make sure mu will increase        gnc_factor -> rotation_gnc_factor
         assert(params_.noise_bound != 0); // make sure noise sigma is not zero
         if (inliers) {
             assert(inliers->cols() == src.cols());
@@ -84,7 +85,8 @@ namespace quatro {
                 // Degenerate case: mu = -1 because max_residual is very small
                 // i.e., little to none noise
                 if (mu <= 0) {
-                    TEASER_DEBUG_INFO_MSG("GNC-TLS terminated because maximum residual at initialization is very small.");
+                    TEASER_DEBUG_INFO_MSG(
+                            "GNC-TLS terminated because maximum residual at initialization is very small.");
                     break;
                 }
             }

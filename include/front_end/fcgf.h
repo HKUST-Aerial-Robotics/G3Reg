@@ -9,7 +9,7 @@
 
 #include "front_end/gem/ellipsoid.h"
 
-namespace fcgf{
+namespace fcgf {
     clique_solver::Association matching(std::tuple<int, int, int> pair_info,
                                         std::vector<clique_solver::GraphVertex::Ptr> &src_nodes,
                                         std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes);

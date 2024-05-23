@@ -13,19 +13,19 @@
 #include "downsample.h"
 #include "gemodel.h"
 
-namespace DCVC{
+namespace DCVC {
     template<typename PointT>
     void Cluster(boost::shared_ptr<pcl::PointCloud<PointT>> cloud,
-                        std::vector<g3reg::ClusterFeature::Ptr>& clusters,
-                        bool remove_ground = true) {
+                 std::vector<g3reg::ClusterFeature::Ptr> &clusters,
+                 bool remove_ground = true) {
         double tSrc;
         pcl::PointCloud<PointT> srcGround;
         boost::shared_ptr<pcl::PointCloud<PointT>> ptrSrcNonground(new pcl::PointCloud<PointT>);
-        if (remove_ground){
+        if (remove_ground) {
             travel::estimateGround(*cloud, srcGround, *ptrSrcNonground, tSrc);
         } else
             ptrSrcNonground = cloud;
-        DCVCCluster<PointT> dcvc(config::dcvc_file);
+        DCVCCluster<PointT> dcvc(g3reg::config::dcvc_file);
         std::vector<boost::shared_ptr<pcl::PointCloud<PointT>>> clusters_pcl;
         dcvc.segmentPointCloud(ptrSrcNonground, clusters_pcl);
         clusters.clear();
@@ -36,18 +36,20 @@ namespace DCVC{
     }
 }
 
-namespace travel{
+namespace travel {
     template<typename PointT>
-    void Cluster(boost::shared_ptr<pcl::PointCloud<PointT>> cloud_ptr, std::vector<g3reg::ClusterFeature::Ptr>& clusters, bool remove_ground = true) {
+    void
+    Cluster(boost::shared_ptr<pcl::PointCloud<PointT>> cloud_ptr, std::vector<g3reg::ClusterFeature::Ptr> &clusters,
+            bool remove_ground = true) {
         double tSrc;
         pcl::PointCloud<PointT> srcGround;
         boost::shared_ptr<pcl::PointCloud<PointT>> ptrSrcNonground(new pcl::PointCloud<PointT>);
-        if (remove_ground){
+        if (remove_ground) {
             travel::estimateGround(*cloud_ptr, srcGround, *ptrSrcNonground, tSrc);
-        } else{
+        } else {
             ptrSrcNonground = cloud_ptr;
         }
-        travel::ObjectCluster<PointT> travel_object_seg(config::travel_file);
+        travel::ObjectCluster<PointT> travel_object_seg(g3reg::config::travel_file);
         std::vector<boost::shared_ptr<pcl::PointCloud<PointT>>> clusters_pcl;
         travel_object_seg.segmentObjects(ptrSrcNonground, clusters_pcl);
         clusters.clear();
@@ -58,11 +60,11 @@ namespace travel{
     }
 }
 
-namespace pcl{
+namespace pcl {
     template<typename PointT>
     void Cluster(boost::shared_ptr<pcl::PointCloud<PointT>> cloud,
-                        std::vector<g3reg::ClusterFeature::Ptr>& clusters,
-                        bool remove_ground = true) {
+                 std::vector<g3reg::ClusterFeature::Ptr> &clusters,
+                 bool remove_ground = true) {
 
         pcl::search::KdTree<PointT> kdtree;
         kdtree.setInputCloud(cloud);
@@ -70,7 +72,7 @@ namespace pcl{
         // 在XY空间上进行聚类
         pcl::EuclideanClusterExtraction<PointT> cluster;
         cluster.setClusterTolerance(1.0);
-        cluster.setMinClusterSize(config::min_cluster_size);
+        cluster.setMinClusterSize(g3reg::config::min_cluster_size);
         cluster.setSearchMethod(&kdtree);
         cluster.setInputCloud(cloud);
         std::vector<pcl::PointIndices> cluster_res;

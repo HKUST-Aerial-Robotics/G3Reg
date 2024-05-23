@@ -29,7 +29,7 @@ namespace teaser {
      * Struct to hold solution to a registration problem
      */
     class RegistrationSolution {
-        public:
+    public:
         bool valid = true;
         double scale;
         Eigen::Vector3d translation;
@@ -784,7 +784,7 @@ namespace teaser {
             inlier_graph_.clear();
         }
 
-        void printParams(){
+        void printParams() {
             std::cout << "noise_bound: " << params_.noise_bound << std::endl;
             std::cout << "cbar2: " << params_.cbar2 << std::endl;
             std::cout << "estimate_scaling: " << params_.estimate_scaling << std::endl;

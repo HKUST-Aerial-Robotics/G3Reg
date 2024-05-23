@@ -85,7 +85,7 @@ public:
         clusters_.clear();
     }
 
-    DCVCCluster(std::string &config_path){
+    DCVCCluster(std::string &config_path) {
 
         YAML::Node config_node = YAML::LoadFile(config_path);
         params_.startR = get(config_node, "dcvc", "startR", 0.35);

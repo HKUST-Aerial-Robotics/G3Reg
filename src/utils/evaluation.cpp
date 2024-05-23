@@ -11,8 +11,9 @@
 #include "utils/config.h"
 
 using namespace clique_solver;
+using namespace g3reg;
 
-Eigen::Matrix3Xd Nodes2Matrix(const std::vector<GraphVertex::Ptr> &nodes){
+Eigen::Matrix3Xd Nodes2Matrix(const std::vector<GraphVertex::Ptr> &nodes) {
     Eigen::Matrix3Xd mat(3, nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
         mat.col(i) = nodes[i]->centroid;
@@ -22,7 +23,7 @@ Eigen::Matrix3Xd Nodes2Matrix(const std::vector<GraphVertex::Ptr> &nodes){
 
 FeatureMetric FrontEndEval(pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
                            pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud,
-                           std::tuple<int, int, int> pair_info, Eigen::Matrix4d T_gt){
+                           std::tuple<int, int, int> pair_info, Eigen::Matrix4d T_gt) {
 
     FeatureMetric result;
 
@@ -30,13 +31,13 @@ FeatureMetric FrontEndEval(pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
     Association A;
     g3reg::EllipsoidMatcher matcher(src_cloud, tgt_cloud);
     robot_utils::TicToc timer;
-    if (config::front_end == "gem"){
+    if (config::front_end == "gem") {
         A = std::move(matcher.matching(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-    } else if (config::front_end == "segregator"){
+    } else if (config::front_end == "segregator") {
 //        A = std::move(segregator::SemanticMatch(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-    } else if (config::front_end == "fpfh"){
+    } else if (config::front_end == "fpfh") {
         A = std::move(fpfh::matching(src_cloud, tgt_cloud, src_nodes, tgt_nodes));
-    } else if (config::front_end == "fcgf"){
+    } else if (config::front_end == "fcgf") {
         A = std::move(fcgf::matching(pair_info, src_nodes, tgt_nodes));
     } else {
         std::cout << "Wrong front end type!" << std::endl;

@@ -8,7 +8,10 @@
 #include "nanoflann/KDTreeVectorOfVectorsAdaptor.h"
 #include "robot_utils/lie_utils.h"
 
-void mark_free_voxels_by_sampling(const Eigen::Vector3d &start_point, const Eigen::Vector3d &end_point, VoxelMap &voxel_map) {
+using namespace g3reg;
+
+void mark_free_voxels_by_sampling(const Eigen::Vector3d &start_point, const Eigen::Vector3d &end_point,
+                                  VoxelMap &voxel_map) {
     // Initialize the start and end voxel keys
     VoxelKey start_key = point_to_voxel_key(start_point, config::voxel_resolution);
     VoxelKey end_key = point_to_voxel_key(end_point, config::voxel_resolution);
@@ -29,13 +32,13 @@ void mark_free_voxels_by_sampling(const Eigen::Vector3d &start_point, const Eige
     }
 }
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr AdaptiveDownsample(const VoxelMap& voxel_map, int sample_num) {
+pcl::PointCloud<pcl::PointXYZ>::Ptr AdaptiveDownsample(const VoxelMap &voxel_map, int sample_num) {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
     for (auto voxel: voxel_map) {
-        if (sample_num == 1){
+        if (sample_num == 1) {
             pcl::PointXYZ pt(voxel.second->center()(0), voxel.second->center()(1), voxel.second->center()(2));
             cloud->push_back(pt);
-        } else{
+        } else {
             int pt_size = voxel.second->cloud()->size();
             if (pt_size > sample_num) {
                 int step = pt_size / sample_num;
@@ -50,64 +53,68 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr AdaptiveDownsample(const VoxelMap& voxel_map
     return cloud;
 }
 
-float RobustKernel(float residual, float hyper_parameter, std::string type){
+float RobustKernel(float residual, float hyper_parameter, std::string type) {
     std::string type_lower = type;
     // transform to lower case
     std::transform(type_lower.begin(), type_lower.end(), type_lower.begin(), ::tolower);
-    if (type == "huber"){
+    if (type == "huber") {
         if (std::abs(residual) <= hyper_parameter) {
             return 0.5 * residual * residual;
         } else {
             return hyper_parameter * (std::abs(residual) - 0.5 * hyper_parameter);
         }
-    } else if (type == "cauchy"){
-        return hyper_parameter * hyper_parameter * std::log(1.0 + (residual * residual) / (hyper_parameter * hyper_parameter));
-    } else if (type == "tukey"){
+    } else if (type == "cauchy") {
+        return hyper_parameter * hyper_parameter *
+               std::log(1.0 + (residual * residual) / (hyper_parameter * hyper_parameter));
+    } else if (type == "tukey") {
         if (std::abs(residual) <= hyper_parameter) {
             float temp = 1 - std::pow((residual / hyper_parameter), 2);
             return (hyper_parameter * hyper_parameter / 6.0) * (1 - temp * temp * temp);
         } else {
             return hyper_parameter * hyper_parameter / 6.0;
         }
-    } else if (type == "geman_mcclure"){
+    } else if (type == "geman_mcclure") {
         // geman-mcclure
         return (residual * residual) / (2.0 * (hyper_parameter * hyper_parameter + residual * residual));
-    } else if (type == "tls"){
+    } else if (type == "tls") {
         // truncated least squares
         return std::min(0.5 * residual * residual, 0.5 * hyper_parameter * hyper_parameter);
-    } else if (type == "dcs"){
+    } else if (type == "dcs") {
         // dynamic covariance scaling
-        return hyper_parameter * hyper_parameter * (1 - std::exp(-residual * residual / (2 * hyper_parameter * hyper_parameter)));
+        return hyper_parameter * hyper_parameter *
+               (1 - std::exp(-residual * residual / (2 * hyper_parameter * hyper_parameter)));
     } else {
         std::cout << "Unknown robust kernel type: " << type << std::endl;
         exit(-1);
     }
 }
 
-float ComputeResidual(const Eigen::Vector3f &query, const Eigen::Vector3f &tgt_pt, const VoxelMap& voxel_map_tgt) {
+float ComputeResidual(const Eigen::Vector3f &query, const Eigen::Vector3f &tgt_pt, const VoxelMap &voxel_map_tgt) {
     VoxelKey tgt_key = point_to_voxel_key(tgt_pt, config::voxel_resolution);
     VoxelMap::const_iterator voxel_iter = voxel_map_tgt.find(tgt_key);
     if (voxel_iter == voxel_map_tgt.end()) {
         return (query - tgt_pt).norm();
     }
-    if (voxel_iter->second->type()==FeatureType::Plane){
-        const Eigen::Vector3f& normal = voxel_iter->second->normal().cast<float>();
+    if (voxel_iter->second->type() == FeatureType::Plane) {
+        const Eigen::Vector3f &normal = voxel_iter->second->normal().cast<float>();
         float residual = (query - tgt_pt).dot(normal);
         return residual;
-    } else if (voxel_iter->second->type()==FeatureType::Line){
-        const Eigen::Vector3f& direction = voxel_iter->second->direction().cast<float>();
+    } else if (voxel_iter->second->type() == FeatureType::Line) {
+        const Eigen::Vector3f &direction = voxel_iter->second->direction().cast<float>();
         float residual = (query - tgt_pt).cross(direction).norm();
         return residual;
     } else {
         return (query - tgt_pt).norm();
     }
 }
+
 #include <pcl/io/pcd_io.h>
-std::pair<bool, Eigen::Matrix4d> GeometryVerify(const VoxelMap& voxel_map_src, const VoxelMap& voxel_map_tgt,
-												const std::vector<Eigen::Matrix4d> &candidates) {
+
+std::pair<bool, Eigen::Matrix4d> GeometryVerify(const VoxelMap &voxel_map_src, const VoxelMap &voxel_map_tgt,
+                                                const std::vector<Eigen::Matrix4d> &candidates) {
 
     if (candidates.size() == 1) {
-        return std::make_pair(true,candidates[0]);
+        return std::make_pair(true, candidates[0]);
     }
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -127,16 +134,17 @@ std::pair<bool, Eigen::Matrix4d> GeometryVerify(const VoxelMap& voxel_map_src, c
         int intersect_num = 0;
         float total_residual = 0.0, residual;
         pcl::transformPointCloud(*src_cloud, *transformed_src, tf);
-		std::vector<int> pointIdxNKNSearch(1);
-		std::vector<float> pointNKNSquaredDistance(1);
+        std::vector<int> pointIdxNKNSearch(1);
+        std::vector<float> pointNKNSquaredDistance(1);
         for (int i = 0; i < transformed_src->size(); ++i) {
             tgt_tree->nearestKSearch(transformed_src->points[i], 1, pointIdxNKNSearch, pointNKNSquaredDistance);
             if (pointIdxNKNSearch[0] < 0 || pointIdxNKNSearch[0] >= tgt_cloud->size()) continue;
-            residual = ComputeResidual(transformed_src->points[i].getVector3fMap(), tgt_cloud->points[pointIdxNKNSearch[0]].getVector3fMap(), voxel_map_tgt);
+            residual = ComputeResidual(transformed_src->points[i].getVector3fMap(),
+                                       tgt_cloud->points[pointIdxNKNSearch[0]].getVector3fMap(), voxel_map_tgt);
             total_residual += RobustKernel(residual, threshold, config::robust_kernel);
             intersect_num++;
         }
-        total_residual = intersect_num > 0 ? total_residual / intersect_num: INFINITY;
+        total_residual = intersect_num > 0 ? total_residual / intersect_num : INFINITY;
 //        LOG(INFO) << "total_residual: " << total_residual << ", transformed_src: " << transformed_src->size() << ", valid_num: " << valid_num;
         if (total_residual < best_pair.first) {
             best_pair = std::make_pair(total_residual, tf);
@@ -146,76 +154,76 @@ std::pair<bool, Eigen::Matrix4d> GeometryVerify(const VoxelMap& voxel_map_src, c
     return std::make_pair(best_pair.first < INFINITY, best_pair.second);
 }
 
-void AdaptiveDownsample(const VoxelMap& voxel_map, int sample_num, std::vector<Eigen::Vector3f> &sample_pts) {
-	sample_pts.reserve(voxel_map.size() * sample_num);
-	for (auto voxel: voxel_map) {
-		if (sample_num == 1){
-			sample_pts.push_back(voxel.second->center().cast<float>());
-		} else{
-			int pt_size = voxel.second->cloud()->size();
-			if (pt_size > sample_num) {
-				int step = pt_size / sample_num;
-				for (int i = 0; i < sample_num; ++i) {
-					sample_pts.push_back(voxel.second->cloud()->points[i * step].getVector3fMap());
-				}
-			} else {
-				for (int i = 0; i < pt_size; ++i) {
-					sample_pts.push_back(voxel.second->cloud()->points[i].getVector3fMap());
-				}
-			}
-		}
-	}
+void AdaptiveDownsample(const VoxelMap &voxel_map, int sample_num, std::vector<Eigen::Vector3f> &sample_pts) {
+    sample_pts.reserve(voxel_map.size() * sample_num);
+    for (auto voxel: voxel_map) {
+        if (sample_num == 1) {
+            sample_pts.push_back(voxel.second->center().cast<float>());
+        } else {
+            int pt_size = voxel.second->cloud()->size();
+            if (pt_size > sample_num) {
+                int step = pt_size / sample_num;
+                for (int i = 0; i < sample_num; ++i) {
+                    sample_pts.push_back(voxel.second->cloud()->points[i * step].getVector3fMap());
+                }
+            } else {
+                for (int i = 0; i < pt_size; ++i) {
+                    sample_pts.push_back(voxel.second->cloud()->points[i].getVector3fMap());
+                }
+            }
+        }
+    }
 }
 
-std::pair<bool, Eigen::Matrix4d> GeometryVerifyNanoFlann(const VoxelMap& voxel_map_src,
-														 const VoxelMap& voxel_map_tgt,
-														 const std::vector<Eigen::Matrix4d> &candidates) {
+std::pair<bool, Eigen::Matrix4d> GeometryVerifyNanoFlann(const VoxelMap &voxel_map_src,
+                                                         const VoxelMap &voxel_map_tgt,
+                                                         const std::vector<Eigen::Matrix4d> &candidates) {
 
-	if (candidates.size() == 1) {
-		return std::make_pair(true,candidates[0]);
-	}
+    if (candidates.size() == 1) {
+        return std::make_pair(true, candidates[0]);
+    }
 
-	std::vector<Eigen::Vector3f> src_pts, tgt_pts, transformed_src_pts;
-	AdaptiveDownsample(voxel_map_src, 5, src_pts);
-	AdaptiveDownsample(voxel_map_tgt, 1, tgt_pts);
+    std::vector<Eigen::Vector3f> src_pts, tgt_pts, transformed_src_pts;
+    AdaptiveDownsample(voxel_map_src, 5, src_pts);
+    AdaptiveDownsample(voxel_map_tgt, 1, tgt_pts);
 
-	KDTreeVectorOfVectorsAdaptor<std::vector<Eigen::Vector3f>, float> kdtree(3, tgt_pts, 10, 1);
+    KDTreeVectorOfVectorsAdaptor<std::vector<Eigen::Vector3f>, float> kdtree(3, tgt_pts, 10, 1);
 
-	float threshold = config::voxel_resolution[0];
-	std::pair<float, Eigen::Matrix4d> best_pair = std::make_pair(INFINITY, candidates[0]);
+    float threshold = config::voxel_resolution[0];
+    std::pair<float, Eigen::Matrix4d> best_pair = std::make_pair(INFINITY, candidates[0]);
 
-	Eigen::Matrix4f last_candidate = Eigen::Matrix4f::Identity();
-	for (int i = 0; i < candidates.size(); ++i) {
-		Eigen::Matrix4f tf = candidates[i].cast<float>();
-		if (i > 0 && (tf - last_candidate).norm() < 0.1) continue;
-		int intersect_num = 0;
-		float total_residual = 0.0, residual;
-		robot_utils::transformPointCloud(src_pts, transformed_src_pts, tf);
-		for (int i = 0; i < transformed_src_pts.size(); ++i) {
-			std::vector<size_t> ret_indexes(1);
-			std::vector<float> out_dists_sqr(1);
-			nanoflann::KNNResultSet<float> resultSet(1);
-			resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
-			kdtree.index->findNeighbors(resultSet, &transformed_src_pts[i][0]);
+    Eigen::Matrix4f last_candidate = Eigen::Matrix4f::Identity();
+    for (int i = 0; i < candidates.size(); ++i) {
+        Eigen::Matrix4f tf = candidates[i].cast<float>();
+        if (i > 0 && (tf - last_candidate).norm() < 0.1) continue;
+        int intersect_num = 0;
+        float total_residual = 0.0, residual;
+        robot_utils::transformPointCloud(src_pts, transformed_src_pts, tf);
+        for (int i = 0; i < transformed_src_pts.size(); ++i) {
+            std::vector<size_t> ret_indexes(1);
+            std::vector<float> out_dists_sqr(1);
+            nanoflann::KNNResultSet<float> resultSet(1);
+            resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
+            kdtree.index->findNeighbors(resultSet, &transformed_src_pts[i][0]);
 
-			if (ret_indexes[0] < 0 || ret_indexes[0] >= tgt_pts.size()) continue;
-			residual = ComputeResidual(transformed_src_pts[i], tgt_pts[ret_indexes[0]], voxel_map_tgt);
-			total_residual += RobustKernel(residual, threshold, config::robust_kernel);
-			intersect_num++;
-		}
-		total_residual = intersect_num > 0 ? total_residual / intersect_num: INFINITY;
+            if (ret_indexes[0] < 0 || ret_indexes[0] >= tgt_pts.size()) continue;
+            residual = ComputeResidual(transformed_src_pts[i], tgt_pts[ret_indexes[0]], voxel_map_tgt);
+            total_residual += RobustKernel(residual, threshold, config::robust_kernel);
+            intersect_num++;
+        }
+        total_residual = intersect_num > 0 ? total_residual / intersect_num : INFINITY;
 //        LOG(INFO) << "total_residual: " << total_residual << ", transformed_src: " << transformed_src->size() << ", valid_num: " << valid_num;
-		if (total_residual < best_pair.first) {
-			best_pair = std::make_pair(total_residual, tf.cast<double>());
-		}
-		last_candidate = tf;
-	}
-	return std::make_pair(best_pair.first < INFINITY, best_pair.second);
+        if (total_residual < best_pair.first) {
+            best_pair = std::make_pair(total_residual, tf.cast<double>());
+        }
+        last_candidate = tf;
+    }
+    return std::make_pair(best_pair.first < INFINITY, best_pair.second);
 }
 
 Eigen::Matrix4d GeometryVerify(typename pcl::PointCloud<pcl::PointXYZ>::Ptr src_cloud,
-							   typename pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud,
-							   const std::vector<Eigen::Matrix4d> &candidates) {
+                               typename pcl::PointCloud<pcl::PointXYZ>::Ptr tgt_cloud,
+                               const std::vector<Eigen::Matrix4d> &candidates) {
 
     if (candidates.size() == 1) {
         return candidates[0];

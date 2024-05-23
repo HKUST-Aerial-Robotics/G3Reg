@@ -117,8 +117,9 @@ namespace mac_reg {
                         Eigen::Matrix4d &trans_Mat);
     };
 
-    void solve(const std::vector<clique_solver::GraphVertex::Ptr> &src_nodes, const std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes,
-               const clique_solver::Association& associations, FRGresult& result);
+    void solve(const std::vector<clique_solver::GraphVertex::Ptr> &src_nodes,
+               const std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes,
+               const clique_solver::Association &associations, FRGresult &result);
 }
 
 

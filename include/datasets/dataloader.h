@@ -6,6 +6,7 @@
 
 #ifndef SRC_DATALOADER_H
 #define SRC_DATALOADER_H
+
 #include "utils/config.h"
 
 class DataLoader {
@@ -17,14 +18,14 @@ public:
     };
     std::vector<Item> items;
     typedef std::shared_ptr<DataLoader> Ptr;
-	std::map<int, std::map<int, Eigen::Matrix4d>> lidar_poses; // seq, frame_id, pose
+    std::map<int, std::map<int, Eigen::Matrix4d>> lidar_poses; // seq, frame_id, pose
 public:
     DataLoader() {
-        std::string test_file = config::project_path + "/" + config::test_file;
+        std::string test_file = g3reg::config::project_path + "/" + g3reg::config::test_file;
         LOG(INFO) << "Reading test file: " << test_file;
         LoadTestFile(test_file);
     }
-    
+
     void LoadTestFile(std::string test_file) {
         /**test.txt
          * seq i seq_db j mot1 mot2 mot3 mot4 mot5 mot6 mot7 mot8 mot9 mot10 mot11 mot12 mot13 mot14 mot15 overlap
@@ -66,12 +67,12 @@ public:
         LOG(INFO) << "Loading " << items.size() << " items";
         file.close(); //关闭文件
     }
-    
+
     virtual pcl::PointCloud<pcl::PointXYZ>::Ptr GetCloud(std::string dataset_root, int seq, int i) = 0;
 
     virtual Eigen::Matrix4d getLidarPose(std::string dataset_root, int seq, int frame_id) = 0;
-	
-	virtual void LoadLiDARPoses(std::string dataset_root, int seq = -1) = 0;
+
+    virtual void LoadLiDARPoses(std::string dataset_root, int seq = -1) = 0;
 };
 
 #endif //SRC_DATALOADER_H

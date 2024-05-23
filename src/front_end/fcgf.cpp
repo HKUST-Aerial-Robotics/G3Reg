@@ -8,20 +8,24 @@
 #include "datasets/datasets_init.h"
 #include <robot_utils/file_manager.h>
 
-namespace fcgf{
+using namespace g3reg;
+
+namespace fcgf {
     static ApolloData apollo_data;
 
-    std::string GetFCGFDir(int seq){
+    std::string GetFCGFDir(int seq) {
         std::string dataset_name = config::dataset_name;
         std::transform(dataset_name.begin(), dataset_name.end(), dataset_name.begin(), ::tolower);
-        if (dataset_name == "apollo"){
+        if (dataset_name == "apollo") {
             std::string apollo_dir = apollo_data.apollo_sessions[seq];
             return FileManager::JoinPath(FileManager::JoinPath(config::dataset_root, apollo_dir), "correspondences");
-        } else if (dataset_name == "kitti"){
+        } else if (dataset_name == "kitti") {
             std::string fcgf_dir = (boost::format("%s/%02d/correspondences") % config::dataset_root % seq).str();
             return fcgf_dir;
-        } else if (dataset_name == "kitti360"){
-            std::string fcgf_dir = boost::str(boost::format("%s/data_3d_raw/2013_05_28_drive_%04d_sync/velodyne_points/correspondences") % config::dataset_root % seq);
+        } else if (dataset_name == "kitti360") {
+            std::string fcgf_dir = boost::str(
+                    boost::format("%s/data_3d_raw/2013_05_28_drive_%04d_sync/velodyne_points/correspondences") %
+                    config::dataset_root % seq);
             return fcgf_dir;
         } else {
             throw std::runtime_error("GetFCGFDir Unknown dataset type");
@@ -36,7 +40,9 @@ namespace fcgf{
         int src_id = std::get<1>(pair_info);
         int tgt_id = std::get<2>(pair_info);
         std::string fcgf_dir = GetFCGFDir(seq);
-        std::string fcgf_corr_path = FileManager::JoinPath(fcgf_dir, std::to_string(src_id) + "_" + std::to_string(tgt_id) + ".txt");
+        std::string fcgf_corr_path = FileManager::JoinPath(fcgf_dir,
+                                                           std::to_string(src_id) + "_" + std::to_string(tgt_id) +
+                                                           ".txt");
         std::ifstream fcgf_corr_file(fcgf_corr_path);
         if (!fcgf_corr_file.is_open()) {
             LOG(ERROR) << "Cannot open file " << fcgf_corr_path;
@@ -55,10 +61,10 @@ namespace fcgf{
 
         std::vector<int> indices;
         indices.reserve(src_ds.size());
-        for(int i = 0; i < src_ds.size(); ++i) {
+        for (int i = 0; i < src_ds.size(); ++i) {
             indices.push_back(i);
         }
-        if (indices.size() > config::max_corrs && config::back_end!="ransac"){
+        if (indices.size() > config::max_corrs && config::back_end != "ransac") {
             // downsample the correspondences to 2000 without replacement
             indices.resize(config::max_corrs); // keep only the first 1000 elements
         }
@@ -76,9 +82,9 @@ namespace fcgf{
         tgt_nodes.reserve(indices.size());
 
         for (int i = 0; i < indices.size(); i++) {
-            const Eigen::Vector3d& center = src_ds[indices[i]];
+            const Eigen::Vector3d &center = src_ds[indices[i]];
             src_nodes.push_back(clique_solver::create_vertex(center, config::vertex_info));
-            const Eigen::Vector3d& center_tgt = tgt_ds[indices[i]];
+            const Eigen::Vector3d &center_tgt = tgt_ds[indices[i]];
             tgt_nodes.push_back(clique_solver::create_vertex(center_tgt, config::vertex_info));
         }
         return assoc;

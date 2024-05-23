@@ -9,16 +9,16 @@
 #include "front_end/gem/gem_matching.h"
 #include "front_end/gem/ellipsoid.h"
 
-namespace g3reg{
+namespace g3reg {
 
 // Define a comparison struct for the priority queue
     struct Compare {
-        bool operator()(const std::pair<int, double>& p1, const std::pair<int, double>& p2) {
+        bool operator()(const std::pair<int, double> &p1, const std::pair<int, double> &p2) {
             return p1.second < p2.second;
         }
     };
 
-    std::vector<std::pair<int, int>> MatchingGEMs(std::vector<GEM::Ptr> &src, std::vector<GEM::Ptr> &tgt, int K){
+    std::vector<std::pair<int, int>> MatchingGEMs(std::vector<GEM::Ptr> &src, std::vector<GEM::Ptr> &tgt, int K) {
         std::vector<std::vector<std::pair<int, double>>> src_to_tgt(src.size()), tgt_to_src(tgt.size());
         int K_src = std::min(K, static_cast<int>(tgt.size()));
         int K_tgt = std::min(K, static_cast<int>(src.size()));
@@ -62,11 +62,12 @@ namespace g3reg{
         // Only keep mutual matches
         std::vector<std::pair<int, int>> corres;
         for (int i = 0; i < src.size(); ++i) {
-            for (const auto& match : src_to_tgt[i]) {
+            for (const auto &match: src_to_tgt[i]) {
                 int j = match.first;
-                auto it = std::find_if(tgt_to_src[j].begin(), tgt_to_src[j].end(), [&](const std::pair<int, double>& p) {
-                    return p.first == i;
-                });
+                auto it = std::find_if(tgt_to_src[j].begin(), tgt_to_src[j].end(),
+                                       [&](const std::pair<int, double> &p) {
+                                           return p.first == i;
+                                       });
                 if (it != tgt_to_src[j].end()) {
                     corres.push_back(std::make_pair(i, j));
                 }

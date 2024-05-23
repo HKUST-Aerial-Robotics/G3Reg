@@ -15,7 +15,7 @@
 inline DataLoader::Ptr CreateDataLoader() {
     DataLoader::Ptr data_loader;
     // use Lower case letters
-    std::string dataset_name = config::dataset_name;
+    std::string dataset_name = g3reg::config::dataset_name;
     std::transform(dataset_name.begin(), dataset_name.end(), dataset_name.begin(), ::tolower);
     if (dataset_name == "kitti") {
         data_loader = std::make_shared<KittiLoader>();
@@ -23,7 +23,7 @@ inline DataLoader::Ptr CreateDataLoader() {
         data_loader = std::make_shared<ApolloLoader>();
     } else if (dataset_name == "kitti360") {
         data_loader = std::make_shared<KITTI360Loader>();
-    } else if (dataset_name == "hit_ms"){
+    } else if (dataset_name == "hit_ms") {
         data_loader = std::make_shared<HITLoader>();
     } else {
         LOG(ERROR) << "Unknown dataset type: " << dataset_name;

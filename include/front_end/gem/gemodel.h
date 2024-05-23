@@ -24,11 +24,12 @@ namespace g3reg {
     class QuadricFeature {
     public:
         typedef std::shared_ptr<QuadricFeature> Ptr;
-        QuadricFeature(){
+
+        QuadricFeature() {
             cloud_ = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>());
         }
 
-        QuadricFeature(Eigen::Vector3d center, Eigen::Matrix3d sigma=Eigen::Matrix3d::Identity()) {
+        QuadricFeature(Eigen::Vector3d center, Eigen::Matrix3d sigma = Eigen::Matrix3d::Identity()) {
             cloud_ = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>());
             center_ = center;
             sigma_ = sigma;
@@ -84,7 +85,7 @@ namespace g3reg {
 
         Eigen::VectorXd eigenvalue_feature() const;
 
-        Eigen::Matrix3d normalized_cov(Eigen::Matrix3d& cov, Eigen::Vector3d& ev, double chi2) const;
+        Eigen::Matrix3d normalized_cov(Eigen::Matrix3d &cov, Eigen::Vector3d &ev, double chi2) const;
 
         void transform(const Eigen::Matrix4d &T);
 
@@ -105,17 +106,17 @@ namespace g3reg {
     public:
         typedef std::shared_ptr<LineFeature> Ptr;
 
-        LineFeature():QuadricFeature(){
+        LineFeature() : QuadricFeature() {
             type_ = FeatureType::Line;
         }
 
         LineFeature(const Eigen::Vector3d &pa, const Eigen::Vector3d &pb,
-                    const Eigen::Matrix3d &sigma): point_a_(pa), point_b_(pb), QuadricFeature() {
+                    const Eigen::Matrix3d &sigma) : point_a_(pa), point_b_(pb), QuadricFeature() {
             type_ = FeatureType::Line;
             sigma_ = sigma;
         }
 
-        LineFeature(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud): QuadricFeature(cloud) {
+        LineFeature(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud) : QuadricFeature(cloud) {
             type_ = FeatureType::Line;
         }
 
@@ -136,62 +137,62 @@ namespace g3reg {
     public:
         typedef std::shared_ptr<ClusterFeature> Ptr;
 
-        ClusterFeature(): QuadricFeature() {
+        ClusterFeature() : QuadricFeature() {
             type_ = FeatureType::Cluster;
         }
 
-        ClusterFeature(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud): QuadricFeature(cloud) {
+        ClusterFeature(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud) : QuadricFeature(cloud) {
             type_ = FeatureType::Cluster;
             normal_ = Eigen::Vector3d::UnitZ();
         }
 
         static ClusterFeature::Ptr Random();
     };
-	
-	// road, sidewalk, wall, etc.
-	class SurfaceFeature : public QuadricFeature {
-	public:
-		typedef std::shared_ptr<SurfaceFeature> Ptr;
-		
-		SurfaceFeature():QuadricFeature() {
-			type_ = FeatureType::Plane;
-			voxels_.clear();
-		}
-		
-		SurfaceFeature(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud): QuadricFeature(cloud) {
-			type_ = FeatureType::Plane;
-		}
-		
-		SurfaceFeature(const Eigen::Vector3d &center, const Eigen::Vector3d &normal,
-					   const Eigen::Matrix3d &sigma):SurfaceFeature() {
-			
-			center_ = center;
-			normal_ = normal;
-			sigma_ = sigma;
-			cloud_ = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
-			
-			Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> saes(sigma_);
-			lambda_ = saes.eigenvalues();
-			umat_ = saes.eigenvectors();
-		}
-		
-		bool merge(const Voxel& voxel);
-		
-		bool consistent(const Voxel& voxel);
-		
-		bool merge(const SurfaceFeature &surface);
-		
-		bool consistent(const SurfaceFeature& surface);
-		
-		static SurfaceFeature::Ptr Random();
-		
-		std::vector<VoxelKey> voxels() const { return voxels_; }
-		
-		void push_back(const VoxelKey& loc){ voxels_.push_back(loc); }
-	
-	private:
-		std::vector<VoxelKey> voxels_;
-	};
+
+    // road, sidewalk, wall, etc.
+    class SurfaceFeature : public QuadricFeature {
+    public:
+        typedef std::shared_ptr<SurfaceFeature> Ptr;
+
+        SurfaceFeature() : QuadricFeature() {
+            type_ = FeatureType::Plane;
+            voxels_.clear();
+        }
+
+        SurfaceFeature(const pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud) : QuadricFeature(cloud) {
+            type_ = FeatureType::Plane;
+        }
+
+        SurfaceFeature(const Eigen::Vector3d &center, const Eigen::Vector3d &normal,
+                       const Eigen::Matrix3d &sigma) : SurfaceFeature() {
+
+            center_ = center;
+            normal_ = normal;
+            sigma_ = sigma;
+            cloud_ = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
+
+            Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> saes(sigma_);
+            lambda_ = saes.eigenvalues();
+            umat_ = saes.eigenvectors();
+        }
+
+        bool merge(const Voxel &voxel);
+
+        bool consistent(const Voxel &voxel);
+
+        bool merge(const SurfaceFeature &surface);
+
+        bool consistent(const SurfaceFeature &surface);
+
+        static SurfaceFeature::Ptr Random();
+
+        std::vector<VoxelKey> voxels() const { return voxels_; }
+
+        void push_back(const VoxelKey &loc) { voxels_.push_back(loc); }
+
+    private:
+        std::vector<VoxelKey> voxels_;
+    };
 
 } // namespace g3reg
 

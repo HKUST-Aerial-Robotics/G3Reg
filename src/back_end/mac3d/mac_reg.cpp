@@ -1,7 +1,7 @@
 #include "back_end/mac3d/mac_reg.h"
 
-namespace mac_reg{
-    Eigen::Matrix4d MaximalCliqueReg::run(){
+namespace mac_reg {
+    Eigen::Matrix4d MaximalCliqueReg::run() {
 
         Eigen::MatrixXf Graph = Graph_construction(correspondence, use_sc2);
         if (Graph.norm() == 0) {
@@ -273,8 +273,10 @@ namespace mac_reg{
         return cmp_score;
     }
 
-    void MaximalCliqueReg::post_refinement(pcl::PointCloud<pcl::PointXYZ>::Ptr &src_corr_pts, pcl::PointCloud<pcl::PointXYZ>::Ptr &des_corr_pts,
-                                           Eigen::Matrix4d &initial, double &best_score, double inlier_thresh, int iterations,
+    void MaximalCliqueReg::post_refinement(pcl::PointCloud<pcl::PointXYZ>::Ptr &src_corr_pts,
+                                           pcl::PointCloud<pcl::PointXYZ>::Ptr &des_corr_pts,
+                                           Eigen::Matrix4d &initial, double &best_score, double inlier_thresh,
+                                           int iterations,
                                            const std::string &metric) {
         int pointNum = src_corr_pts->points.size();
         double pre_score = best_score;
@@ -379,8 +381,10 @@ namespace mac_reg{
     }
 
     void
-    MaximalCliqueReg::find_largest_clique_of_node(Eigen::MatrixXf &Graph, igraph_vector_ptr_t *cliques, std::vector<Corre_3DMatch> &correspondence,
-                                                  node_cliques *result, std::vector<int> &remain, int num_node, int est_num) {
+    MaximalCliqueReg::find_largest_clique_of_node(Eigen::MatrixXf &Graph, igraph_vector_ptr_t *cliques,
+                                                  std::vector<Corre_3DMatch> &correspondence,
+                                                  node_cliques *result, std::vector<int> &remain, int num_node,
+                                                  int est_num) {
         int *vis = new int[igraph_vector_ptr_size(cliques)];
         memset(vis, 0, igraph_vector_ptr_size(cliques));
 #pragma omp parallel for
@@ -462,8 +466,10 @@ namespace mac_reg{
     }
 
     double
-    MaximalCliqueReg::evaluation_trans(std::vector<Corre_3DMatch> &Match, pcl::PointCloud<pcl::PointXYZ>::Ptr &src_corr_pts,
-                                       pcl::PointCloud<pcl::PointXYZ>::Ptr &des_corr_pts, double weight_thresh, Eigen::Matrix4d &trans, double metric_thresh) {
+    MaximalCliqueReg::evaluation_trans(std::vector<Corre_3DMatch> &Match,
+                                       pcl::PointCloud<pcl::PointXYZ>::Ptr &src_corr_pts,
+                                       pcl::PointCloud<pcl::PointXYZ>::Ptr &des_corr_pts, double weight_thresh,
+                                       Eigen::Matrix4d &trans, double metric_thresh) {
 
         pcl::PointCloud<pcl::PointXYZ>::Ptr src_pts(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::PointCloud<pcl::PointXYZ>::Ptr des_pts(new pcl::PointCloud<pcl::PointXYZ>);
@@ -505,7 +511,9 @@ namespace mac_reg{
         return score;
     }
 
-    void MaximalCliqueReg::weight_SVD(pcl::PointCloud<pcl::PointXYZ>::Ptr &src_pts, pcl::PointCloud<pcl::PointXYZ>::Ptr &des_pts, Eigen::VectorXd &weights, double weight_threshold,
+    void MaximalCliqueReg::weight_SVD(pcl::PointCloud<pcl::PointXYZ>::Ptr &src_pts,
+                                      pcl::PointCloud<pcl::PointXYZ>::Ptr &des_pts, Eigen::VectorXd &weights,
+                                      double weight_threshold,
                                       Eigen::Matrix4d &trans_Mat) {
         for (size_t i = 0; i < weights.size(); i++) {
             weights(i) = (weights(i) < weight_threshold) ? 0 : weights(i);
@@ -558,15 +566,20 @@ namespace mac_reg{
         trans_Mat = Trans;
     }
 
-    void solve(const std::vector<clique_solver::GraphVertex::Ptr> &src_nodes, const std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes,
-               const clique_solver::Association& associations, FRGresult& result){
+    void solve(const std::vector<clique_solver::GraphVertex::Ptr> &src_nodes,
+               const std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes,
+               const clique_solver::Association &associations, FRGresult &result) {
 
         robot_utils::TicToc tt;
         std::vector<MaximalCliqueReg::Corre_3DMatch> correspondence;
-        for (int i=0;i<associations.rows();i++){
+        for (int i = 0; i < associations.rows(); i++) {
             MaximalCliqueReg::Corre_3DMatch t;
-            t.src = pcl::PointXYZ(src_nodes[associations(i,0)]->centroid(0), src_nodes[associations(i,0)]->centroid(1), src_nodes[associations(i,0)]->centroid(2));
-            t.des = pcl::PointXYZ(tgt_nodes[associations(i,1)]->centroid(0), tgt_nodes[associations(i,1)]->centroid(1), tgt_nodes[associations(i,1)]->centroid(2));
+            t.src = pcl::PointXYZ(src_nodes[associations(i, 0)]->centroid(0),
+                                  src_nodes[associations(i, 0)]->centroid(1),
+                                  src_nodes[associations(i, 0)]->centroid(2));
+            t.des = pcl::PointXYZ(tgt_nodes[associations(i, 1)]->centroid(0),
+                                  tgt_nodes[associations(i, 1)]->centroid(1),
+                                  tgt_nodes[associations(i, 1)]->centroid(2));
             t.score = 0;
             correspondence.push_back(t);
         }
@@ -576,7 +589,7 @@ namespace mac_reg{
 
         result.tf_solver_time = tt.toc();
         result.tf = best_tf;
-        result.candidates = { best_tf };
+        result.candidates = {best_tf};
     }
 
 }

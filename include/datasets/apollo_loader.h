@@ -47,7 +47,7 @@ public:
     };
 };
 
-class ApolloLoader: public DataLoader {
+class ApolloLoader : public DataLoader {
 
 public:
     typedef std::shared_ptr<ApolloLoader> Ptr;
@@ -55,21 +55,21 @@ public:
 
 public:
 
-    ApolloLoader(): DataLoader() {
+    ApolloLoader() : DataLoader() {
         LOG(INFO) << "Load Apollo Dataset.";
-	}
+    }
 
-	Eigen::Matrix4d getLidarPose(std::string dataset_root, int seq, int frame_id) {
-		if (lidar_poses.find(seq) == lidar_poses.end()){
-			LoadLiDARPoses(dataset_root, seq);
-		} else if (lidar_poses[seq].find(frame_id) == lidar_poses[seq].end()){
-			LoadLiDARPoses(dataset_root, seq);
-		} else {
-			return lidar_poses[seq][frame_id];
-		}
-		return lidar_poses[seq][frame_id];
-	}
-    
+    Eigen::Matrix4d getLidarPose(std::string dataset_root, int seq, int frame_id) {
+        if (lidar_poses.find(seq) == lidar_poses.end()) {
+            LoadLiDARPoses(dataset_root, seq);
+        } else if (lidar_poses[seq].find(frame_id) == lidar_poses[seq].end()) {
+            LoadLiDARPoses(dataset_root, seq);
+        } else {
+            return lidar_poses[seq][frame_id];
+        }
+        return lidar_poses[seq][frame_id];
+    }
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr GetCloud(std::string dataset_root, int seq, int i) {
         std::string dir_name = apollo_data.apollo_sessions[seq];
         std::string file_name = boost::str(boost::format("%s/%spcds/%d.pcd") % dataset_root % dir_name % i);
@@ -79,34 +79,34 @@ public:
         }
         return cloud;
     }
-	
-	void LoadLiDARPoses(std::string dataset_root, int seq){
-		std::string dir_name = apollo_data.apollo_sessions[seq];
-		std::string file_name = boost::str(boost::format("%s/%sposes/gt_poses.txt") % dataset_root % dir_name);
-		std::ifstream file(file_name);
-		if (!file.is_open()) {
-			throw std::runtime_error("Could not open file");
-		}
-		std::fstream f;
-		f.open(file_name, std::ios::in);
-		std::string line;
-		lidar_poses[seq] = std::map<int, Eigen::Matrix4d>();
-		while (std::getline(f, line)) {
-			std::stringstream ss(line);
-			int num;
-			double timestamp, tx, ty, tz, qx, qy, qz, qw;
-			ss >> num >> timestamp >> tx >> ty >> tz >> qx >> qy >> qz >> qw;
-			Eigen::Matrix4d Twl = Eigen::Matrix4d::Identity();
-			Eigen::Quaterniond q(qw, qx, qy, qz);
-			Eigen::Matrix3d R = q.toRotationMatrix();
-			Twl.block<3, 3>(0, 0) = R;
-			Twl(0, 3) = tx;
-			Twl(1, 3) = ty;
-			Twl(2, 3) = tz;
-			lidar_poses[seq][num] = Twl;
-		}
-		f.close();
-	}
+
+    void LoadLiDARPoses(std::string dataset_root, int seq) {
+        std::string dir_name = apollo_data.apollo_sessions[seq];
+        std::string file_name = boost::str(boost::format("%s/%sposes/gt_poses.txt") % dataset_root % dir_name);
+        std::ifstream file(file_name);
+        if (!file.is_open()) {
+            throw std::runtime_error("Could not open file");
+        }
+        std::fstream f;
+        f.open(file_name, std::ios::in);
+        std::string line;
+        lidar_poses[seq] = std::map<int, Eigen::Matrix4d>();
+        while (std::getline(f, line)) {
+            std::stringstream ss(line);
+            int num;
+            double timestamp, tx, ty, tz, qx, qy, qz, qw;
+            ss >> num >> timestamp >> tx >> ty >> tz >> qx >> qy >> qz >> qw;
+            Eigen::Matrix4d Twl = Eigen::Matrix4d::Identity();
+            Eigen::Quaterniond q(qw, qx, qy, qz);
+            Eigen::Matrix3d R = q.toRotationMatrix();
+            Twl.block<3, 3>(0, 0) = R;
+            Twl(0, 3) = tx;
+            Twl(1, 3) = ty;
+            Twl(2, 3) = tz;
+            lidar_poses[seq][num] = Twl;
+        }
+        f.close();
+    }
 };
 
 

@@ -14,32 +14,34 @@
 #include "dataloader.h"
 #include <robot_utils/lie_utils.h>
 
-class KITTI360Loader: public DataLoader {
+class KITTI360Loader : public DataLoader {
 private:
     Eigen::Matrix4d calib_lidar_to_pose;
 
 public:
-    KITTI360Loader(): DataLoader() {
+    KITTI360Loader() : DataLoader() {
         LOG(INFO) << "Load KITTI360 Dataset.";
-        calib_lidar_to_pose = getLidarToIMU(config::dataset_root);
+        calib_lidar_to_pose = getLidarToIMU(g3reg::config::dataset_root);
     }
 
     Eigen::Matrix4d getEgoMotion(int seq, int frame_id) {
-		Eigen::Matrix4d tf = getLidarPose(config::dataset_root, seq, frame_id);
-        if (lidar_poses[seq].find(frame_id) != lidar_poses[seq].end() && lidar_poses[seq].find(frame_id - 1) != lidar_poses[seq].end()) {
+        Eigen::Matrix4d tf = getLidarPose(g3reg::config::dataset_root, seq, frame_id);
+        if (lidar_poses[seq].find(frame_id) != lidar_poses[seq].end() &&
+            lidar_poses[seq].find(frame_id - 1) != lidar_poses[seq].end()) {
             return lidar_poses[seq][frame_id].inverse() * lidar_poses[seq][frame_id - 1];
-        } else if (lidar_poses[seq].find(frame_id) != lidar_poses[seq].end() && lidar_poses[seq].find(frame_id + 1) != lidar_poses[seq].end()) {
+        } else if (lidar_poses[seq].find(frame_id) != lidar_poses[seq].end() &&
+                   lidar_poses[seq].find(frame_id + 1) != lidar_poses[seq].end()) {
             return lidar_poses[seq][frame_id + 1].inverse() * lidar_poses[seq][frame_id];
         } else {
             return Eigen::Matrix4d::Identity();
         }
     }
 
-    void deskew(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, Eigen::Vector3d rho, Eigen::Vector3d t){
+    void deskew(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, Eigen::Vector3d rho, Eigen::Vector3d t) {
 #pragma omp parallel for
         for (int i = 0; i < cloud->size(); ++i) {
             double vx, vy, vz, s, rx, ry, rz, tx, ty, tz, theta, kx, ky, kz, ct, st, kv;
-            pcl::PointXYZ& pt = cloud->points[i];
+            pcl::PointXYZ &pt = cloud->points[i];
             vx = pt.x, vy = pt.y, vz = pt.z;
             s = 0.5 * std::atan2(vy, vx) / M_PI;
             rx = s * rho[0], ry = s * rho[1], rz = s * rho[2];
@@ -58,56 +60,61 @@ public:
             }
         }
     }
-    
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr GetCloud(std::string dataset_root, int seq, int i) {
-        std::string file_name = boost::str(boost::format("%s/data_3d_raw/2013_05_28_drive_%04d_sync/velodyne_points/data/%010d.bin") % dataset_root % seq % i);
+        std::string file_name = boost::str(
+                boost::format("%s/data_3d_raw/2013_05_28_drive_%04d_sync/velodyne_points/data/%010d.bin") %
+                dataset_root % seq % i);
         robot_utils::TicToc t;
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud = kitti_utils::ReadCloudXYZ(file_name);
         Eigen::Matrix4d ego_motion = getEgoMotion(seq, i);
-        if ((ego_motion- Eigen::Matrix4d::Identity()).norm() > 0.1){
-            Eigen::Matrix3d R = ego_motion.block<3,3>(0,0);
+        if ((ego_motion - Eigen::Matrix4d::Identity()).norm() > 0.1) {
+            Eigen::Matrix3d R = ego_motion.block<3, 3>(0, 0);
             Eigen::Vector3d rho = robot_utils::R2so3(R);
-            Eigen::Vector3d t = ego_motion.block<3,1>(0,3);
+            Eigen::Vector3d t = ego_motion.block<3, 1>(0, 3);
             deskew(cloud, rho, t);
         }
         return cloud;
     }
-	
-	void LoadLiDARPoses(std::string dataset_root, int seq){
-		std::string pose_file = boost::str(boost::format("%s/data_poses/2013_05_28_drive_%04d_sync/poses.txt") % dataset_root % seq);
-		std::ifstream file(pose_file);
-		if (!file.is_open()) {
-			throw std::runtime_error("Could not open file " + pose_file);
-		}
-		std::string line;
-		int idx;
-		lidar_poses[seq] = std::map<int, Eigen::Matrix4d>();
-		while (std::getline(file, line)) {
-			std::istringstream iss(line);
-			iss >> idx;
-			Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
-			for (int i = 0; i < 3; i++) {
-				iss >> tf(i, 0) >> tf(i, 1) >> tf(i, 2) >> tf(i, 3);
-			}
-			tf = tf * calib_lidar_to_pose;
-			lidar_poses[seq][idx] = tf;
-		}
-	}
-	
-	Eigen::Matrix4d getLidarPose(std::string dataset_root, int seq, int frame_id) {
-		if (lidar_poses.find(seq) == lidar_poses.end()){
-			LoadLiDARPoses(dataset_root, seq);
-		} else if (lidar_poses[seq].find(frame_id) == lidar_poses[seq].end()){
-			LoadLiDARPoses(dataset_root, seq);
-		} else {
-			return lidar_poses[seq][frame_id];
-		}
-		return lidar_poses[seq][frame_id];
-	}
 
-    Eigen::Matrix4d getLidarToIMU(std::string dataset_root){
-        std::string calib_cam_to_pose_file = boost::str(boost::format("%s/calibration/calib_cam_to_pose.txt") % dataset_root);
-        std::string calib_cam_to_velo_file = boost::str(boost::format("%s/calibration/calib_cam_to_velo.txt") % dataset_root);
+    void LoadLiDARPoses(std::string dataset_root, int seq) {
+        std::string pose_file = boost::str(
+                boost::format("%s/data_poses/2013_05_28_drive_%04d_sync/poses.txt") % dataset_root % seq);
+        std::ifstream file(pose_file);
+        if (!file.is_open()) {
+            throw std::runtime_error("Could not open file " + pose_file);
+        }
+        std::string line;
+        int idx;
+        lidar_poses[seq] = std::map<int, Eigen::Matrix4d>();
+        while (std::getline(file, line)) {
+            std::istringstream iss(line);
+            iss >> idx;
+            Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+            for (int i = 0; i < 3; i++) {
+                iss >> tf(i, 0) >> tf(i, 1) >> tf(i, 2) >> tf(i, 3);
+            }
+            tf = tf * calib_lidar_to_pose;
+            lidar_poses[seq][idx] = tf;
+        }
+    }
+
+    Eigen::Matrix4d getLidarPose(std::string dataset_root, int seq, int frame_id) {
+        if (lidar_poses.find(seq) == lidar_poses.end()) {
+            LoadLiDARPoses(dataset_root, seq);
+        } else if (lidar_poses[seq].find(frame_id) == lidar_poses[seq].end()) {
+            LoadLiDARPoses(dataset_root, seq);
+        } else {
+            return lidar_poses[seq][frame_id];
+        }
+        return lidar_poses[seq][frame_id];
+    }
+
+    Eigen::Matrix4d getLidarToIMU(std::string dataset_root) {
+        std::string calib_cam_to_pose_file = boost::str(
+                boost::format("%s/calibration/calib_cam_to_pose.txt") % dataset_root);
+        std::string calib_cam_to_velo_file = boost::str(
+                boost::format("%s/calibration/calib_cam_to_velo.txt") % dataset_root);
         Eigen::Matrix4d calib_cam_to_pose = Eigen::Matrix4d::Identity();
         Eigen::Matrix4d calib_cam_to_velo = Eigen::Matrix4d::Identity();
         std::ifstream file(calib_cam_to_pose_file);
@@ -120,7 +127,8 @@ public:
         line = line.substr(9);
         std::istringstream iss(line);
         for (int i = 0; i < 3; i++) {
-            iss >> calib_cam_to_pose(i, 0) >> calib_cam_to_pose(i, 1) >> calib_cam_to_pose(i, 2) >> calib_cam_to_pose(i, 3);
+            iss >> calib_cam_to_pose(i, 0) >> calib_cam_to_pose(i, 1) >> calib_cam_to_pose(i, 2)
+                >> calib_cam_to_pose(i, 3);
         }
         file.close();
         file.open(calib_cam_to_velo_file);
@@ -131,7 +139,8 @@ public:
         std::getline(file, line);
         iss = std::istringstream(line);
         for (int i = 0; i < 3; i++) {
-            iss >> calib_cam_to_velo(i, 0) >> calib_cam_to_velo(i, 1) >> calib_cam_to_velo(i, 2) >> calib_cam_to_velo(i, 3);
+            iss >> calib_cam_to_velo(i, 0) >> calib_cam_to_velo(i, 1) >> calib_cam_to_velo(i, 2)
+                >> calib_cam_to_velo(i, 3);
         }
         file.close();
         Eigen::Matrix4d calib_lidar_to_pose = calib_cam_to_pose * calib_cam_to_velo.inverse();

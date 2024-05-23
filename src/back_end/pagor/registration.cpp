@@ -12,6 +12,7 @@
 #include "robot_utils/algorithms.h"
 
 using namespace teaser;
+using namespace g3reg;
 
 namespace pagor {
 

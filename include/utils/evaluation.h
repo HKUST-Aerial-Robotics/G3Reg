@@ -26,7 +26,7 @@ public:
         plane_inliers = 0;
         line_inliers = 0;
         cluster_inliers = 0;
-        candidates.resize(config::num_graphs, Eigen::Matrix4d::Identity());
+        candidates.resize(g3reg::config::num_graphs, Eigen::Matrix4d::Identity());
         valid = true;
     }
 
@@ -134,7 +134,8 @@ public:
         Eigen::Matrix3d rot_err = tf_gt.block<3, 3>(0, 0).transpose() * tf_est.block<3, 3>(0, 0);
         Eigen::Vector3d trans_err =
                 tf_gt.block<3, 3>(0, 0).transpose() * (tf_est.block<3, 1>(0, 3) - tf_gt.block<3, 1>(0, 3));
-        if (robot_utils::R2Angle(rot_err, true) < config::rot_thresh && trans_err.norm() < config::trans_thresh) {
+        if (robot_utils::R2Angle(rot_err, true) < g3reg::config::rot_thresh &&
+            trans_err.norm() < g3reg::config::trans_thresh) {
             rot_errs.push_back(abs(robot_utils::R2Angle(rot_err, true)));
             trans_errs.push_back(trans_err.norm());
             return true;

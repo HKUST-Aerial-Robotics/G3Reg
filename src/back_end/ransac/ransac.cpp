@@ -11,6 +11,7 @@
 
 using namespace std;
 using namespace clique_solver;
+using namespace g3reg;
 
 namespace ransac {
 
@@ -28,38 +29,43 @@ namespace ransac {
         for (int iter = 0; iter < params.max_iterations; ++iter) {
             if (best_inliers >= inliers_to_end) continue; // End early if enough inliers have been found
 
-            int i = dist(rng), j = dist(rng), l = dist(rng), src_i_idx, src_j_idx, src_k_idx, tgt_i_idx, tgt_j_idx, tgt_k_idx;
+            int i = dist(rng), j = dist(rng), l = dist(
+                    rng), src_i_idx, src_j_idx, src_k_idx, tgt_i_idx, tgt_j_idx, tgt_k_idx;
             src_i_idx = associations(i, 0), src_j_idx = associations(j, 0), src_k_idx = associations(l, 0);
             tgt_i_idx = associations(i, 1), tgt_j_idx = associations(j, 1), tgt_k_idx = associations(l, 1);
             // Check if there are overlaps in the indices
             if (src_i_idx == src_j_idx || src_i_idx == src_k_idx || src_j_idx == src_k_idx ||
-                tgt_i_idx == tgt_j_idx || tgt_i_idx == tgt_k_idx || tgt_j_idx == tgt_k_idx)
-            {
+                tgt_i_idx == tgt_j_idx || tgt_i_idx == tgt_k_idx || tgt_j_idx == tgt_k_idx) {
                 continue;
             }
 
-            const auto& src_i = src_points[associations(i, 0)];
-            const auto& tgt_i = tgt_points[associations(i, 1)];
+            const auto &src_i = src_points[associations(i, 0)];
+            const auto &tgt_i = tgt_points[associations(i, 1)];
 
-            const auto& src_j = src_points[associations(j, 0)];
-            const auto& tgt_j = tgt_points[associations(j, 1)];
+            const auto &src_j = src_points[associations(j, 0)];
+            const auto &tgt_j = tgt_points[associations(j, 1)];
 
-            const auto& src_k = src_points[associations(l, 0)];
-            const auto& tgt_k = tgt_points[associations(l, 1)];
+            const auto &src_k = src_points[associations(l, 0)];
+            const auto &tgt_k = tgt_points[associations(l, 1)];
 
-            float src_ij_dist = (src_i - src_j).norm(), src_ik_dist = (src_i - src_k).norm(), src_jk_dist = (src_j - src_k).norm();
-            float tgt_ij_dist = (tgt_i - tgt_j).norm(), tgt_ik_dist = (tgt_i - tgt_k).norm(), tgt_jk_dist = (tgt_j - tgt_k).norm();
+            float src_ij_dist = (src_i - src_j).norm(), src_ik_dist = (src_i - src_k).norm(), src_jk_dist = (src_j -
+                                                                                                             src_k).norm();
+            float tgt_ij_dist = (tgt_i - tgt_j).norm(), tgt_ik_dist = (tgt_i - tgt_k).norm(), tgt_jk_dist = (tgt_j -
+                                                                                                             tgt_k).norm();
             float scale = 0.95;
             // Check if the distances between the points are within translation_resolution
             if (src_ij_dist < tgt_ij_dist * scale || tgt_ij_dist < src_ij_dist * scale ||
                 src_ik_dist < tgt_ik_dist * scale || tgt_ik_dist < src_ik_dist * scale ||
-                src_jk_dist < tgt_jk_dist * scale || tgt_jk_dist < src_jk_dist * scale)
-            {
+                src_jk_dist < tgt_jk_dist * scale || tgt_jk_dist < src_jk_dist * scale) {
                 continue;
             }
             Eigen::Matrix3Xd P(3, 3), Q(3, 3);
-            P.col(0) = src_i; P.col(1) = src_j; P.col(2) = src_k;
-            Q.col(0) = tgt_i; Q.col(1) = tgt_j; Q.col(2) = tgt_k;
+            P.col(0) = src_i;
+            P.col(1) = src_j;
+            P.col(2) = src_k;
+            Q.col(0) = tgt_i;
+            Q.col(1) = tgt_j;
+            Q.col(2) = tgt_k;
 
             Eigen::Matrix4d transform_candidate = gtsam::svdSE3(P, Q);
             int inliers = 0;
@@ -85,7 +91,7 @@ namespace ransac {
 
 
     void solve(const std::vector<GraphVertex::Ptr> &src_nodes, const std::vector<GraphVertex::Ptr> &tgt_nodes,
-                       const Association &A, FRGresult &result) {
+               const Association &A, FRGresult &result) {
 
         // RANSAC
         RansacParams params;

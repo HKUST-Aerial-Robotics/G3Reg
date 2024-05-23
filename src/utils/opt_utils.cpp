@@ -13,31 +13,31 @@ using namespace gtsam;
 using namespace g3reg;
 using symbol_shorthand::X;  // pose
 
-namespace gtsam{
-	
-	/**
-	 * Helper function to use svd to estimate rotation.
-	 * Method described here: http://igl.ethz.ch/projects/ARAP/svd_rot.pdf
-	 * @param X
-	 * @param Y
-	 * @return a rotation matrix R
-	 */
-	Eigen::Matrix3d svdRot(const Eigen::Matrix<double, 3, Eigen::Dynamic> &X,
-								  const Eigen::Matrix<double, 3, Eigen::Dynamic> &Y,
-								  const Eigen::Matrix<double, 1, Eigen::Dynamic> &W) {
-		// Assemble the correlation matrix H = X * Y'
-		Eigen::Matrix3d H = X * W.asDiagonal() * Y.transpose();
-		
-		Eigen::JacobiSVD<Eigen::Matrix3d> svd(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
-		Eigen::Matrix3d U = svd.matrixU();
-		Eigen::Matrix3d V = svd.matrixV();
-		
-		if (U.determinant() * V.determinant() < 0) {
-			V.col(2) *= -1;
-		}
-		
-		return V * U.transpose();
-	}
+namespace gtsam {
+
+    /**
+     * Helper function to use svd to estimate rotation.
+     * Method described here: http://igl.ethz.ch/projects/ARAP/svd_rot.pdf
+     * @param X
+     * @param Y
+     * @return a rotation matrix R
+     */
+    Eigen::Matrix3d svdRot(const Eigen::Matrix<double, 3, Eigen::Dynamic> &X,
+                           const Eigen::Matrix<double, 3, Eigen::Dynamic> &Y,
+                           const Eigen::Matrix<double, 1, Eigen::Dynamic> &W) {
+        // Assemble the correlation matrix H = X * Y'
+        Eigen::Matrix3d H = X * W.asDiagonal() * Y.transpose();
+
+        Eigen::JacobiSVD<Eigen::Matrix3d> svd(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        Eigen::Matrix3d U = svd.matrixU();
+        Eigen::Matrix3d V = svd.matrixV();
+
+        if (U.determinant() * V.determinant() < 0) {
+            V.col(2) *= -1;
+        }
+
+        return V * U.transpose();
+    }
 
     Eigen::Matrix4d gncQuadricsSE3(const std::vector<g3reg::QuadricFeature::Ptr> &src,
                                    const std::vector<g3reg::QuadricFeature::Ptr> &tgt,
@@ -59,19 +59,19 @@ namespace gtsam{
             } else if (src_quadric->type() == FeatureType::Line && tgt_quadric->type() == FeatureType::Line) {
                 graph.add(Gaussian2GaussianFactor(X(0), src_center, tgt_center, src_quadric->sigma(),
                                                   tgt_quadric->sigma(), noise, RegularizationMethod::NONE));
-            } else if (src_quadric->type() == FeatureType::Cluster && tgt_quadric->type() == FeatureType::Cluster){
+            } else if (src_quadric->type() == FeatureType::Cluster && tgt_quadric->type() == FeatureType::Cluster) {
                 graph.add(Gaussian2GaussianFactor(X(0), src_center, tgt_center, src_quadric->sigma(),
                                                   tgt_quadric->sigma(), noise, RegularizationMethod::NONE));
-            } else{
+            } else {
                 std::cerr << "Unknown semantic type!" << std::endl;
             }
         }
-		
-		LevenbergMarquardtParams params;
+
+        LevenbergMarquardtParams params;
 //		params.setMaxIterations(10);
         GncParams<LevenbergMarquardtParams> gncParams(params);
 //		gncParams.setMaxIterations(10);
-        auto gnc = GncOptimizer<GncParams<LevenbergMarquardtParams>>(graph,initial,gncParams);
+        auto gnc = GncOptimizer<GncParams<LevenbergMarquardtParams>>(graph, initial, gncParams);
         Values estimate = gnc.optimize();
         Eigen::Matrix4d T = estimate.at<Pose3>(X(0)).matrix();
         return T;
@@ -89,7 +89,7 @@ namespace gtsam{
             graph.add(Point2PointFactor(X(0), src.col(i), tgt.col(i), noise));
         }
         GncParams<LevenbergMarquardtParams> gncParams;
-        auto gnc = GncOptimizer<GncParams<LevenbergMarquardtParams>>(graph,initial,gncParams);
+        auto gnc = GncOptimizer<GncParams<LevenbergMarquardtParams>>(graph, initial, gncParams);
         Values estimate = gnc.optimize();
         Eigen::Matrix4d T = estimate.at<Pose3>(X(0)).matrix();
         return T;
@@ -98,8 +98,8 @@ namespace gtsam{
     Eigen::Matrix4d svdSE3(const Eigen::Matrix3Xd &src, const Eigen::Matrix3Xd &tgt) {
         Eigen::Vector3d src_mean = src.rowwise().mean();
         Eigen::Vector3d tgt_mean = tgt.rowwise().mean();
-        const Eigen::Matrix3Xd& src_centered = src - src_mean.replicate(1, src.cols());
-        const Eigen::Matrix3Xd& tgt_centered = tgt - tgt_mean.replicate(1, tgt.cols());
+        const Eigen::Matrix3Xd &src_centered = src - src_mean.replicate(1, src.cols());
+        const Eigen::Matrix3Xd &tgt_centered = tgt - tgt_mean.replicate(1, tgt.cols());
         Eigen::MatrixXd H = src_centered * tgt_centered.transpose();
         Eigen::JacobiSVD<Eigen::MatrixXd> svd(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
         Eigen::MatrixXd R_ = svd.matrixV() * svd.matrixU().transpose();
@@ -114,9 +114,9 @@ namespace gtsam{
         return T;
     }
 
-    Eigen::Matrix2d svdRot2d(const Eigen::Matrix<double, 2, Eigen::Dynamic>& X,
-                             const Eigen::Matrix<double, 2, Eigen::Dynamic>& Y,
-                             const Eigen::Matrix<double, 1, Eigen::Dynamic>& W) {
+    Eigen::Matrix2d svdRot2d(const Eigen::Matrix<double, 2, Eigen::Dynamic> &X,
+                             const Eigen::Matrix<double, 2, Eigen::Dynamic> &Y,
+                             const Eigen::Matrix<double, 1, Eigen::Dynamic> &W) {
         // Assemble the correlation matrix H = X * Y'
         Eigen::Matrix2d H = X * W.asDiagonal() * Y.transpose();
 
@@ -214,7 +214,8 @@ namespace gtsam{
         Eigen::Matrix3d cov = R.matrix() * m_cov1 * R.matrix().transpose() + m_cov2;
         Eigen::Vector3d mx = R * m_c1 + X.translation();
         Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> es(cov);
-        const Eigen::Matrix3d sqrtMahalanobis = es.eigenvalues().cwiseInverse().cwiseSqrt().asDiagonal() * es.eigenvectors().transpose();
+        const Eigen::Matrix3d sqrtMahalanobis =
+                es.eigenvalues().cwiseInverse().cwiseSqrt().asDiagonal() * es.eigenvectors().transpose();
         gtsam::Vector3 error = sqrtMahalanobis * (mx - m_c2);
         if (H) {
             *H = gtsam::Matrix(3, 6);

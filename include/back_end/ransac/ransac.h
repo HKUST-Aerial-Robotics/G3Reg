@@ -29,8 +29,8 @@ namespace ransac {
     };
 
     void solve(const std::vector<clique_solver::GraphVertex::Ptr> &src_nodes,
-                    const std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes,
-                    const clique_solver::Association &A, FRGresult &result);
+               const std::vector<clique_solver::GraphVertex::Ptr> &tgt_nodes,
+               const clique_solver::Association &A, FRGresult &result);
 }
 
 #endif //SRC_RANSAC_H

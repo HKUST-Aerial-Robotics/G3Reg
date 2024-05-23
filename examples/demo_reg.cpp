@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace clique_solver;
+using namespace g3reg;
 
 
 template<typename PointT>
