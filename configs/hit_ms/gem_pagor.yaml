@@ -1,4 +1,3 @@
-verbose: false
 dataset:
   name: hit_ms
   dataset_root: /media/qzj/QZJ1T/datasets/HIT/dataset
