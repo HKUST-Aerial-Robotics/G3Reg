@@ -28,6 +28,7 @@ namespace g3reg {
 
     namespace config {
 
+        extern bool verbose;
         extern std::string dcvc_file, travel_file;
         extern std::string front_end, back_end, tf_solver, cluster_mtd, verify_mtd, robust_kernel;
         extern bool use_pseudo_cov, plane_aided, use_bbox_center, grad_pmc;
@@ -67,22 +68,31 @@ namespace g3reg {
         template<typename T>
         T get(const YAML::Node &node, const std::string &key, const T &default_value) {
             if (!node[key]) {
-                LOG(INFO) << "Key " << key << " not found, using default value: " << default_value;
+                if (verbose) {
+                    LOG(INFO) << "Key " << key << " not found, using default value: " << default_value;
+                }
                 return default_value;
             }
             T value = node[key].as<T>();
-            LOG(INFO) << "Key " << key << " found, using value: " << value;
+            if (verbose) {
+                LOG(INFO) << "Key " << key << " found, using value: " << value;
+            }
             return value;
         }
 
         template<typename T>
         T get(const YAML::Node &node, const std::string &father_key, const std::string &key, const T &default_value) {
             if (!node[father_key] || !node[father_key][key]) {
-                LOG(INFO) << "Key " << father_key << "/" << key << " not found, using default value: " << default_value;
+                if (verbose) {
+                    LOG(INFO) << "Key " << father_key << "/" << key << " not found, using default value: "
+                              << default_value;
+                }
                 return default_value;
             }
             T value = node[father_key][key].as<T>();
-            LOG(INFO) << "Key " << father_key << "/" << key << " found, using value: " << value;
+            if (verbose) {
+                LOG(INFO) << "Key " << father_key << "/" << key << " found, using value: " << value;
+            }
             return value;
         }
     }

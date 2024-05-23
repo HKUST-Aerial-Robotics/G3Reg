@@ -14,6 +14,7 @@ namespace g3reg {
     namespace config {
 
         // benchmark config
+        bool verbose = false;
         std::string project_path = g3reg::WORK_SPACE_PATH;
         std::string config_file, dataset_root, label_dir, test_file, dataset_name, log_dir;
         std::string dcvc_file, travel_file;
@@ -43,13 +44,17 @@ namespace g3reg {
         std::vector<double> get_vec(const YAML::Node &node, const std::string &father_key, const std::string &key) {
             std::vector<double> vec;
             if (!node[father_key] || !node[father_key][key]) {
-                LOG(INFO) << "Key " << father_key << "/" << key << " not found, using default value: ";
+                if (verbose) {
+                    LOG(INFO) << "Key " << father_key << "/" << key << " not found, using default value: ";
+                }
                 return vec;
             }
             for (const auto &item: node[father_key][key]) {
                 vec.push_back(item.as<double>());
             }
-            LOG(INFO) << "Key " << father_key << "/" << key << " found, using value: " << vec.size();
+            if (verbose) {
+                LOG(INFO) << "Key " << father_key << "/" << key << " found, using value: " << vec.size();
+            }
             return vec;
         }
 
@@ -71,6 +76,7 @@ namespace g3reg {
                 config_node = YAML::LoadFile(config_file);
             }
 
+            verbose = get(config_node, "verbose", true);
             dataset_root = get(config_node, "dataset", "dataset_root", std::string(""));
             dataset_name = get(config_node, "dataset", "name", std::string("kitti-10m"));
             label_dir = get(config_node, "dataset", "label_dir", std::string("labels"));
@@ -79,9 +85,11 @@ namespace g3reg {
 
             sensor_dir = project_path + "/" + sensor_dir;
             dcvc_file = sensor_dir + "/dcvc.yaml";
-            LOG(INFO) << "dcvc_file: " << dcvc_file;
             travel_file = sensor_dir + "/travel.yaml";
-            LOG(INFO) << "travel_file: " << travel_file;
+            if (verbose) {
+                LOG(INFO) << "dcvc_file: " << dcvc_file;
+                LOG(INFO) << "travel_file: " << travel_file;
+            }
 
             min_range = get(config_node, "dataset", "min_range", 0.5);
             max_range = get(config_node, "dataset", "max_range", 120.0);
@@ -146,7 +154,9 @@ namespace g3reg {
 
         void readParamsPlane(std::string sensor_dir) {
             std::string plane_file = sensor_dir + "/plane.yaml";
-            LOG(INFO) << "plane_file: " << plane_file;
+            if (verbose) {
+                LOG(INFO) << "plane_file: " << plane_file;
+            }
             YAML::Node config_node;
             if (std::ifstream(plane_file)) {
                 config_node = YAML::LoadFile(plane_file);
@@ -162,7 +172,9 @@ namespace g3reg {
 
         void readParamsFPFH(std::string sensor_dir) {
             std::string fpfh_file = sensor_dir + "/fpfh.yaml";
-            LOG(INFO) << "fpfh_file: " << fpfh_file;
+            if (verbose) {
+                LOG(INFO) << "fpfh_file: " << fpfh_file;
+            }
             YAML::Node config_node;
             if (std::ifstream(fpfh_file)) {
                 config_node = YAML::LoadFile(fpfh_file);
