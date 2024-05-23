@@ -5,8 +5,8 @@
 **/
 #pragma once
 
-#include "../../../../../../../../usr/local/include/gtsam/geometry/Pose3.h"
-#include "../../../../../../../../usr/local/include/gtsam/nonlinear/NonlinearFactor.h"
+#include <gtsam/geometry/Pose3.h>
+#include <gtsam/nonlinear/NonlinearFactor.h>
 #include "front_end/gem/gemodel.h"
 
 namespace gtsam {

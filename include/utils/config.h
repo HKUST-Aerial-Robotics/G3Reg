@@ -60,36 +60,7 @@ namespace g3reg {
         double plane_resolution, plane_distance_thresh, plane_normal_thresh, eigenvalue_thresh;
         Eigen::Vector3f voxel_resolution;
 
-        void readParamsPlane(std::string sensor_dir) {
-            std::string plane_file = sensor_dir + "/plane.yaml";
-            if (verbose) {
-                LOG(INFO) << "plane_file: " << plane_file;
-            }
-            YAML::Node config_node;
-            if (std::ifstream(plane_file)) {
-                config_node = YAML::LoadFile(plane_file);
-            }
-            plane_resolution = get(config_node, "plane_extraction", "resolution", 1.0);
-            plane_distance_thresh = get(config_node, "plane_extraction", "distance_thresh", 0.2);
-            plane_normal_thresh = get(config_node, "plane_extraction", "normal_thresh", 0.95);
-            eigenvalue_thresh = get(config_node, "plane_extraction", "eigenvalue_thresh", 30);
-            voxel_resolution = Eigen::Vector3f(plane_resolution, plane_resolution, plane_resolution);
-        }
-
         double normal_radius, fpfh_radius;
-
-        void readParamsFPFH(std::string sensor_dir) {
-            std::string fpfh_file = sensor_dir + "/fpfh.yaml";
-            if (verbose) {
-                LOG(INFO) << "fpfh_file: " << fpfh_file;
-            }
-            YAML::Node config_node;
-            if (std::ifstream(fpfh_file)) {
-                config_node = YAML::LoadFile(fpfh_file);
-            }
-            normal_radius = get(config_node, "fpfh", "normal_radius", 1.0);
-            fpfh_radius = get(config_node, "fpfh", "fpfh_radius", 2.5);
-        }
 
         template<typename T>
         T get(const YAML::Node &node, const std::string &key, const T &default_value) {
@@ -140,7 +111,6 @@ namespace g3reg {
             return vec;
         }
 
-    public:
         Config();
 
         void reset_config();

@@ -7,7 +7,7 @@
 #ifndef SRC_QUATRO_H
 #define SRC_QUATRO_H
 
-#include "../../../../../../../../../usr/include/eigen3/Eigen/Core"
+#include <Eigen/Core>
 #include "registration.h"
 
 namespace quatro {
