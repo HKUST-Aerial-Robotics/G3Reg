@@ -59,10 +59,11 @@ namespace pagor {
             result.valid = false;
             return;
         }
-
         // initialize the parameters
         teaser::RobustRegistrationSolver::Params params;
         params.noise_bound = config.vertex_info.noise_bound_vec[0];
+        config.num_graphs = config.vertex_info.noise_bound_vec.size();
+        assert(config.num_graphs <= config.vertex_info.noise_bound_vec.size());
         pagor::PyramidRegistrationSolver solver(params, config.num_graphs);
         solver.setQuadricFeatures(matcher.getSrcEllipsoids(), matcher.getTgtEllipsoids());
         solver.solve(src_nodes, tgt_nodes, A);
