@@ -34,7 +34,7 @@ namespace g3reg {
         std::string dataset_root, label_dir, test_file, dataset_name, log_dir, sensor_dir;
         std::string dcvc_file, travel_file;
 
-        std::string front_end, back_end, tf_solver, cluster_mtd, verify_mtd, robust_kernel;
+        std::string front_end, back_end, tf_solver, cluster_mtd;
 
         // Front Engd
         double max_range, min_range, ds_resolution;
@@ -54,11 +54,13 @@ namespace g3reg {
         //RANSAC
         double ransac_max_iterations, ransac_inlier_threshold, ransac_inliers_to_end;
 
+        // Transformation Verification
+        std::string verify_mtd, robust_kernel;
+
         // Evaluation
         double tp_thresh, trans_thresh, rot_thresh;
 
         double plane_resolution, plane_distance_thresh, plane_normal_thresh, eigenvalue_thresh;
-        Eigen::Vector3f voxel_resolution;
 
         double normal_radius, fpfh_radius;
 
@@ -116,6 +118,8 @@ namespace g3reg {
         void reset_config();
 
         void load_config(const std::string &config_file = "", char **argv = nullptr);
+
+        void set_noise_bounds(const std::vector<double> &val);
     };
 
     extern Config config;

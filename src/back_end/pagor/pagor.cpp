@@ -72,10 +72,17 @@ namespace pagor {
         robot_utils::TicToc verify_timer;
         Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
         bool verify_valid = true;
-        if (config.verify_mtd == "voxel" && matcher.getSrcVoxels().size() > 0 && matcher.getTgtVoxels().size() > 0) {
+        if (config.verify_mtd == "gem_based" && matcher.getSrcVoxels().size() > 0 &&
+            matcher.getTgtVoxels().size() > 0) {
 //            std::tie(verify_valid, tf) = GeometryVerify(matcher.getSrcVoxels(), matcher.getTgtVoxels(), solution.candidates);
-            std::tie(verify_valid, tf) = GeometryVerifyNanoFlann(matcher.getSrcVoxels(), matcher.getTgtVoxels(),
-                                                                 solution.candidates);
+            std::tie(verify_valid, tf) = GeometryVerify(matcher.getSrcVoxels(), matcher.getTgtVoxels(),
+                                                        solution.candidates);
+        } else if (config.verify_mtd == "dense_pcd") {
+            // default: use point cloud
+            tf = GeometryVerify(matcher.getSrcPc(), matcher.getTgtPc(), solution.candidates);
+        } else if (config.verify_mtd == "plane_based") {
+            //
+            std::tie(verify_valid, tf) = PlaneVerify(matcher.getSrcPc(), matcher.getTgtPc(), solution.candidates);
         } else { // default: use point cloud
             tf = GeometryVerify(matcher.getSrcPc(), matcher.getTgtPc(), solution.candidates);
         }

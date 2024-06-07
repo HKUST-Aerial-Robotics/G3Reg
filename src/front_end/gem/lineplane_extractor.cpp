@@ -25,7 +25,7 @@ namespace g3reg {
         travel::estimateGround(*cloud_xyz, cloud_ground, cloud_nonground, tSrc);
         ground_time = t.toc();
 
-        cutCloud(cloud_nonground, FeatureType::None, config.voxel_resolution, voxel_map);
+        cutCloud(cloud_nonground, FeatureType::None, config.plane_resolution, voxel_map);
         if (config.plane_aided) {
             for (auto voxel_iter = voxel_map.begin(); voxel_iter != voxel_map.end(); ++voxel_iter) {
                 Voxel::Ptr voxel = voxel_iter->second;
@@ -66,7 +66,7 @@ namespace g3reg {
             for (int i = 0; i < line_features.size(); ++i) {
                 LineFeature::Ptr line_feature = line_features[i];
                 for (int j = 0; j < line_feature->cloud()->size(); ++j) {
-                    VoxelKey key = point_to_voxel_key(line_feature->cloud()->points[j], config.voxel_resolution);
+                    VoxelKey key = point_to_voxel_key(line_feature->cloud()->points[j], config.plane_resolution);
                     auto voxel_iter = voxel_map.find(key);
                     if (voxel_iter != voxel_map.end()) {
                         voxel_iter->second->setSemanticType(FeatureType::Line);
@@ -81,7 +81,7 @@ namespace g3reg {
             ExtractPlanes(cluster_features, surface_features);
             for (SurfaceFeature::Ptr surface_feature: surface_features) {
                 for (int j = 0; j < surface_feature->cloud()->size(); ++j) {
-                    VoxelKey key = point_to_voxel_key(surface_feature->cloud()->points[j], config.voxel_resolution);
+                    VoxelKey key = point_to_voxel_key(surface_feature->cloud()->points[j], config.plane_resolution);
                     auto voxel_iter = voxel_map.find(key);
                     if (voxel_iter != voxel_map.end()) {
                         voxel_iter->second->setSemanticType(FeatureType::Plane);

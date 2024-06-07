@@ -40,7 +40,7 @@ namespace g3reg {
         cluster_mtd = "dcvc";
         back_end = "pagor";
         tf_solver = "gnc";
-        verify_mtd = "voxel";
+        verify_mtd = "gem_based";
         robust_kernel = "dcs";
 
         // evaluation
@@ -92,9 +92,12 @@ namespace g3reg {
         plane_distance_thresh = 0.2;
         plane_normal_thresh = 0.95;
         eigenvalue_thresh = 30;
-        voxel_resolution = Eigen::Vector3f(plane_resolution, plane_resolution, plane_resolution);
     }
 
+    void Config::set_noise_bounds(const std::vector<double> &val) {
+        vertex_info.noise_bound_vec = val;
+        num_graphs = vertex_info.noise_bound_vec.size() == 0 ? 1 : vertex_info.noise_bound_vec.size();
+    }
 
     void Config::load_config(const std::string &config_file, char **argv) {
 
@@ -195,7 +198,6 @@ namespace g3reg {
         plane_distance_thresh = get(config_node, "plane_extraction", "distance_thresh", plane_distance_thresh);
         plane_normal_thresh = get(config_node, "plane_extraction", "normal_thresh", plane_normal_thresh);
         eigenvalue_thresh = get(config_node, "plane_extraction", "eigenvalue_thresh", eigenvalue_thresh);
-        voxel_resolution = Eigen::Vector3f(plane_resolution, plane_resolution, plane_resolution);
     }
 
     void InitGLOG(const std::string &config_path, char **argv) {

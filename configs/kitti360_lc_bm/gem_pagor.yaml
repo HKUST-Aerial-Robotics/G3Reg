@@ -12,7 +12,7 @@ cluster_mtd: "travel" # euc, dcvc, travel
 back_end: "pagor" # pagor, ransac, 3dmac
 mac_solver: "pmc" # pmc, clipper, pyclipper
 tf_solver: "gmm_tls" # teaser, gnc, quatro, svd, gmm_tls
-verify_mtd: "voxel" # voxel, pc
+verify_mtd: "gem_based" # gem_based, pc
 
 association:
   method: "wasserstein" # all, iou, wasserstein
@@ -23,4 +23,4 @@ association:
 
 vertex:
   type: "ellipse" # gaussian, point_ratio, ellipse, point
-  noise_bound_vec: [0.115, 0.352, 0.584, 1.005]
+  noise_bound_vec: [ 0.115, 0.352, 0.584, 1.005 ]

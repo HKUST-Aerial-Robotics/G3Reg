@@ -107,11 +107,27 @@ VoxelKey point_to_voxel_key(const PointT &point, const Eigen::Vector3f &voxel_si
     return std::make_tuple(x, y, z);
 }
 
+template<typename PointT>
+VoxelKey point_to_voxel_key(const PointT &point, const float &voxel_size) {
+    int x = static_cast<int>(std::floor(point.x / voxel_size));
+    int y = static_cast<int>(std::floor(point.y / voxel_size));
+    int z = static_cast<int>(std::floor(point.z / voxel_size));
+    return std::make_tuple(x, y, z);
+}
+
 template<typename T>
 VoxelKey point_to_voxel_key(const Eigen::Matrix<T, 3, 1> &point, const Eigen::Vector3f &voxel_size) {
     int x = static_cast<int>(std::floor(point.x() / voxel_size.x()));
     int y = static_cast<int>(std::floor(point.y() / voxel_size.y()));
     int z = static_cast<int>(std::floor(point.z() / voxel_size.z()));
+    return std::make_tuple(x, y, z);
+}
+
+template<typename T>
+VoxelKey point_to_voxel_key(const Eigen::Matrix<T, 3, 1> &point, const float &voxel_size) {
+    int x = static_cast<int>(std::floor(point.x() / voxel_size));
+    int y = static_cast<int>(std::floor(point.y() / voxel_size));
+    int z = static_cast<int>(std::floor(point.z() / voxel_size));
     return std::make_tuple(x, y, z);
 }
 
@@ -231,6 +247,22 @@ using VoxelMap = std::unordered_map<VoxelKey, Voxel::Ptr, robot_utils::Vec3dHash
 template<typename PointT>
 void cutCloud(const pcl::PointCloud<PointT> &cloud, const FeatureType type,
               const Eigen::Vector3f &voxel_size, VoxelMap &voxel_map) {
+    for (size_t i = 0; i < cloud.size(); i++) {
+        VoxelKey position = point_to_voxel_key(cloud.points[i], voxel_size);
+        VoxelMap::iterator voxel_iter = voxel_map.find(position);
+        if (voxel_iter != voxel_map.end()) {
+            voxel_iter->second->insertPoint(cloud.points[i]);
+        } else {
+            Voxel::Ptr voxel = Voxel::Ptr(new Voxel(position, type));
+            voxel->insertPoint(cloud.points[i]);
+            voxel_map.insert(std::make_pair(position, voxel));
+        }
+    }
+}
+
+template<typename PointT>
+void cutCloud(const pcl::PointCloud<PointT> &cloud, const FeatureType type,
+              const float &voxel_size, VoxelMap &voxel_map) {
     for (size_t i = 0; i < cloud.size(); i++) {
         VoxelKey position = point_to_voxel_key(cloud.points[i], voxel_size);
         VoxelMap::iterator voxel_iter = voxel_map.find(position);
