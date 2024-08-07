@@ -77,12 +77,12 @@ namespace gtsam {
         return T;
     }
 
-    Eigen::Matrix4d gncSE3(const Eigen::Matrix3Xd &src, const Eigen::Matrix3Xd &tgt) {
+    Eigen::Matrix4d gncSE3(const Eigen::Matrix3Xd &src, const Eigen::Matrix3Xd &tgt, Eigen::Matrix4d init) {
 
         // Create a factor graph
         NonlinearFactorGraph graph;
         Values initial;
-        initial.insert(X(0), Pose3(Eigen::Matrix4d::Identity()));
+        initial.insert(X(0), Pose3(init));
         noiseModel::Diagonal::shared_ptr noise = noiseModel::Unit::Create(3);
         assert(src.cols() == tgt.cols());
         for (int i = 0; i < src.cols(); ++i) {

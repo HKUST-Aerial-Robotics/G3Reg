@@ -170,7 +170,8 @@ namespace gtsam {
                                    clique_solver::Association &assoc,
                                    Eigen::Matrix4d init = Eigen::Matrix4d::Identity());
 
-    Eigen::Matrix4d gncSE3(const Eigen::Matrix3Xd &src, const Eigen::Matrix3Xd &tgt);
+    Eigen::Matrix4d gncSE3(const Eigen::Matrix3Xd &src, const Eigen::Matrix3Xd &tgt,
+                           Eigen::Matrix4d init = Eigen::Matrix4d::Identity());
 
     Eigen::Matrix4d svdSE3(const Eigen::Matrix3Xd &src, const Eigen::Matrix3Xd &tgt);
 

@@ -106,7 +106,7 @@ namespace pagor {
 
         // Abort if max max_clique size <= 1
         if (max_clique.size() >= 3) {
-            solution_.candidates[level] = gtsam::gncSE3(rotation_pruned_src, rotation_pruned_dst);
+            solution_.candidates[level] = gtsam::gncSE3(rotation_pruned_src, rotation_pruned_dst, T_init);
             for (size_t i = 0; i < max_clique.size(); ++i) {
                 solution_.inliers(level, max_clique[i]) = true;
             }
