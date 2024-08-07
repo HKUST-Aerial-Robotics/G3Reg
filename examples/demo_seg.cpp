@@ -16,23 +16,6 @@ using namespace std;
 using namespace clique_solver;
 using namespace g3reg;
 
-//typedef std::tuple<int, int, int> Color;
-//std::map<int, Color> getSemanticColorMap(){
-//    std::map<int, Color> instance_color_map;
-//    std::set<int> ins_id_set = std::set<int>(instance_ids.begin(), instance_ids.end());
-//    instance_color_map[-1] = Color(0, 0, 0);
-//    for (int id: ins_id_set) {
-//        if (id < 0) continue;
-//        std::mt19937 rng(std::random_device{}());
-//        std::uniform_int_distribution<int> dist(0, 255);
-//        int r = dist(rng);
-//        int g = dist(rng);
-//        int b = dist(rng);
-//        instance_color_map[id] = Color(r, g, b);
-//    }
-//    return instance_color_map;
-//}
-
 
 template<typename PointT>
 void visualizeCloud(typename pcl::PointCloud<PointT>::Ptr source,
@@ -72,6 +55,54 @@ void visualizeCloud(typename pcl::PointCloud<PointT>::Ptr source,
     viewer.close();
 }
 
+
+template<typename PointT>
+void saveColoredCloud(typename pcl::PointCloud<PointT>::Ptr source,
+                    std::vector<std::vector<g3reg::QuadricFeature::Ptr>> &ellipsoids) {
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    for (int i = 0; i < source->size(); i++) {
+        pcl::PointXYZRGB point;
+        point.x = source->points[i].x;
+        point.y = source->points[i].y;
+        point.z = source->points[i].z;
+        point.r = 255;
+        point.g = 180;
+        point.b = 0;
+        colored_cloud->push_back(point);
+    }
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr quadric_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    int id = 0;
+    for (int type = 0; type < ellipsoids.size(); type++) {
+        // line, plane, cluster
+        for (int i = 0; i < ellipsoids[type].size(); i++) {
+            auto &quadric = ellipsoids[type][i];
+            std::mt19937 rng(std::random_device{}());
+            std::uniform_int_distribution<int> dist(0, 255);
+            int r = dist(rng), g = dist(rng), b = dist(rng);
+            auto cloud = quadric->cloud();
+            for (int j = 0; j < cloud->size(); j++) {
+                pcl::PointXYZRGB point;
+                point.x = cloud->points[j].x;
+                point.y = cloud->points[j].y;
+                point.z = cloud->points[j].z;
+                point.r = r;
+                point.g = g;
+                point.b = b;
+                quadric_cloud->push_back(point);
+            }
+        }
+    }
+
+    std::string log_dir = g3reg::WORK_SPACE_PATH + "/Log/demo/";
+    FileManager::CreateDirectory(log_dir);
+    pcl::io::savePCDFileASCII(log_dir + "source_colored.pcd", *colored_cloud);
+    pcl::io::savePCDFileASCII(log_dir + "quadric_colored.pcd", *quadric_cloud);
+    LOG(INFO) << "Save colored cloud to " << log_dir;
+    // visualize: set larger size for quadric
+    // pcl_viewer Log/demo/source_colored.pcd -ps 2 Log/demo/quadric_colored.pcd -ps 3.5 -bc 255,255,255
+}
+
 int main(int argc, char **argv) {
     if (argc < 3) {
         std::cout << "Usage: reg_bm config_file pcd1" << std::endl;
@@ -97,6 +128,7 @@ int main(int argc, char **argv) {
     TransformToEllipsoid(feature_set, src_ellipsoids);
 
     visualizeCloud<pcl::PointXYZ>(source, src_ellipsoids);
+    saveColoredCloud<pcl::PointXYZ>(source, src_ellipsoids);
 
     return 0;
 }
