@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     flex \
     bison \
     wget \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
@@ -38,13 +39,15 @@ RUN apt-get update && apt-get install -y \
     libtbb-dev
 
 # Install GTSAM
-RUN git clone https://github.com/borglab/gtsam.git /gtsam && \
-    cd /gtsam && \
-    git checkout 4f66a491ffc83cf092d0d818b11dc35135521612 && \
+RUN wget https://github.com/borglab/gtsam/archive/refs/tags/4.2.zip -O /tmp/gtsam-4.2.zip && \
+    cd /tmp && \
+    unzip gtsam-4.2.zip && \
+    cd gtsam-4.2 && \
     mkdir build && cd build && \
     cmake .. && \
     make -j4 && \
-    make install
+    make install && \
+    rm -rf /tmp/gtsam-4.2 /tmp/gtsam-4.2.zip
 
 # Install VTK and Qt
 RUN apt-get update && apt-get install -y \
