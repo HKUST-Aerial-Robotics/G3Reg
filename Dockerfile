@@ -34,7 +34,8 @@ RUN apt-get update && apt-get install -y \
     libglu1-mesa-dev \
     freeglut3-dev \
     zlib1g-dev \
-    libpcap-dev
+    libpcap-dev \
+    libtbb-dev
 
 # Install GTSAM
 RUN git clone https://github.com/borglab/gtsam.git /gtsam && \
