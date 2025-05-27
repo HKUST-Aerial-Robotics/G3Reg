@@ -29,7 +29,7 @@ This will start a container with all dependencies pre-installed and mount your c
 sudo apt install libboost-dev libyaml-cpp-dev libomp-dev libtbb-dev
 ```
 
-**b. Follow the official guidance to install [GTSAM-4.2](https://github.com/borglab/gtsam/tree/4f66a491ffc83cf092d0d818b11dc35135521612), [PCL-1.10](https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.10.0), [GLOG](https://github.com/google/glog).**
+**b. Follow the official guidance to install [GTSAM-4.1.1](https://github.com/borglab/gtsam/releases/tag/4.1.1), [PCL-1.10](https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.10.0), [GLOG](https://github.com/google/glog).**
 
 > **Note**:
 >

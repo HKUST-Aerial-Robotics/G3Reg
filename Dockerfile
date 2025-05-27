@@ -39,15 +39,15 @@ RUN apt-get update && apt-get install -y \
     libtbb-dev
 
 # Install GTSAM
-RUN wget https://github.com/borglab/gtsam/archive/refs/tags/4.2.zip -O /tmp/gtsam-4.2.zip && \
+RUN wget https://github.com/borglab/gtsam/archive/refs/tags/4.1.1.zip -O /tmp/gtsam-4.1.1.zip && \
     cd /tmp && \
-    unzip gtsam-4.2.zip && \
-    cd gtsam-4.2 && \
+    unzip gtsam-4.1.1.zip && \
+    cd gtsam-4.1.1 && \
     mkdir build && cd build && \
     cmake .. && \
     make -j4 && \
     make install && \
-    rm -rf /tmp/gtsam-4.2 /tmp/gtsam-4.2.zip
+    rm -rf /tmp/gtsam-4.1.1 /tmp/gtsam-4.1.1.zip
 
 # Install VTK and Qt
 RUN apt-get update && apt-get install -y \
