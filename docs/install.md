@@ -11,6 +11,7 @@ You can use Docker to simplify the installation process and avoid manual depende
 
 ```shell
 docker build -t g3reg .
+xhost +local:root
 docker run -it \
     -v "$(pwd)":/root/G3Reg \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
