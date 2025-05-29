@@ -11,7 +11,13 @@ You can use Docker to simplify the installation process and avoid manual depende
 
 ```shell
 docker build -t g3reg .
-docker run -it -v "$(pwd)":/root/G3Reg -w /root/G3Reg g3reg bash
+xhost +local:root
+docker run -it \
+    -v "$(pwd)":/root/G3Reg \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -w /root/G3Reg \
+    -e DISPLAY=$DISPLAY \
+    g3reg bash
 ```
 
 This will start a container with all dependencies pre-installed and mount your current project directory into the container.
@@ -24,7 +30,7 @@ This will start a container with all dependencies pre-installed and mount your c
 sudo apt install libboost-dev libyaml-cpp-dev libomp-dev libtbb-dev
 ```
 
-**b. Follow the official guidance to install [GTSAM-4.2](https://github.com/borglab/gtsam/tree/4f66a491ffc83cf092d0d818b11dc35135521612), [PCL-1.10](https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.10.0), [GLOG](https://github.com/google/glog).**
+**b. Follow the official guidance to install [GTSAM-4.1.1](https://github.com/borglab/gtsam/releases/tag/4.1.1), [PCL-1.10](https://github.com/PointCloudLibrary/pcl/releases/tag/pcl-1.10.0), [GLOG](https://github.com/google/glog).**
 
 > **Note**:
 >
